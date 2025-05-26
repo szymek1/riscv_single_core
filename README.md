@@ -19,5 +19,10 @@ Registers mapping (by default)
 
 Each register is 32-bit.
 
+### Memory
+![Memory high-level layout](docs/graphics/rv32i_mem_scheme.drawio.png)
+
+High level memory layout- little endian scheme.
+
 ### Target
 The target device for this project is [Zybo Z7: Zynq-700](https://digilent.com/reference/programmable-logic/zybo-z7/start).
