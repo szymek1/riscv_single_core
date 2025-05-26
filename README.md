@@ -7,6 +7,7 @@ Key features:
 - ```fence``` implemented as ```nop```
 - machine mode only
 - single-issue, in-order pipeline
+- CSRs, interrupts, timers and exceptions are not supported for simplicity
 
 ### Registers:
 Registers mapping (by default)
