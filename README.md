@@ -16,3 +16,6 @@ Registers mapping (by default)
 | ```x5``` |       alternate link register       |
 
 Each register is 32-bit.
+
+### Target
+The target device for this project is [Zybo Z7: Zynq-700](https://digilent.com/reference/programmable-logic/zybo-z7/start).
