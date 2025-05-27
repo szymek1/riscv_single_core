@@ -45,15 +45,11 @@ unisims
 *.lib
 
 ## dirs
-rv32i_sc.cache/
-rv32i_sc.hw/
-rv32i_sc.ip_user_files/
-rv32i_sc.runs/
-rv32i_sc.sim/
-rv32i_sc.cache/sim/
-rv32i_sc.cache/wt/
-rv32i_sc.ip_user_files/
-rv32i_sc.sim/
+rv32i_sc.cache/**/
+rv32i_sc.hw/**/
+rv32i_sc.ip_user_files/**/
+rv32i_sc.runs/**/
+rv32i_sc.sim/**/
 
 ###### for Xilinx Vivado|ISE
 .Xil/
