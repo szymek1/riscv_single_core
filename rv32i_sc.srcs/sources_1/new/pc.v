@@ -26,7 +26,7 @@ module pc(
     input  wire        pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
     input  wire [31:0] pc_in, // branch/jummp target
     output wire [31:0] pc_out,
-    output wire [31:0] pc_next;
+    output wire [31:0] pc_next
     );
     
     reg [31:0] pc_internal; // current internal value of PC
