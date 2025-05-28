@@ -11,13 +11,14 @@
 // Tool Versions: 
 // Description: testbench for program counter
 // 
-// Dependencies: 
+// Dependencies: rv32i_params.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+`include "rv32i_params.vh"
 
 
 module pc_tb(
@@ -27,10 +28,10 @@ module pc_tb(
     reg clk;
     reg rst;
     
-    reg         pc_select;
-    reg  [31:0] pc_in;
-    wire [31:0] pc_out;
-    wire [31:0] pc_next;
+    reg                    pc_select;
+    reg  [`DATA_WIDTH-1:0] pc_in;
+    wire [`DATA_WIDTH-1:0] pc_out;
+    wire [`DATA_WIDTH-1:0] pc_next;
     
     task display_results;
         begin
@@ -57,8 +58,8 @@ module pc_tb(
         forever #5 clk = ~clk;  // toggle clk every 5 time units
     end
     
-    parameter BOOT_ADDR = 32'h0;
-    parameter PC_STEP   = 32'h4;
+    parameter BOOT_ADDR = `BOOT_ADDR;
+    parameter PC_STEP   = `PC_STEP;
     
     integer cnt;
     initial begin

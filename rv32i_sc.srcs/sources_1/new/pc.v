@@ -11,39 +11,40 @@
 // Tool Versions: 
 // Description: 32-bit program counter for RV32I
 // 
-// Dependencies: 
+// Dependencies: rv32i_params.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+`include "rv32i_params.vh"
 
 
-module pc(
+module pc( 
     input clk,
     input rst,
-    input  wire        pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
-    input  wire [31:0] pc_in,     // branch/jummp target
-    output wire [31:0] pc_out,
-    output wire [31:0] pc_next
+    input  wire                   pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
+    input  wire [`DATA_WIDTH-1:0] pc_in,     // branch/jummp target
+    output wire [`DATA_WIDTH-1:0] pc_out,
+    output wire [`DATA_WIDTH-1:0] pc_next
     );
     
-    reg [31:0] pc_internal; // current internal value of PC
+    reg [`DATA_WIDTH-1:0] pc_internal; // current internal value of PC
     
-    parameter BOOT_ADDR = 32'b0;
+    parameter BOOT_ADDR = `BOOT_ADDR;
     always @(posedge clk or posedge rst) begin
         if (rst == 1'b1) begin
             pc_internal <= BOOT_ADDR;
         end
         
         else begin
-            pc_internal <= pc_select ? pc_in : pc_internal + 32'd4;
+            pc_internal <= pc_select ? pc_in : pc_internal + `PC_STEP;
         end
         
     end
 
     assign pc_out  = pc_internal;
-    assign pc_next = pc_out + 32'd4;
+    assign pc_next = pc_out + `PC_STEP;
     
 endmodule

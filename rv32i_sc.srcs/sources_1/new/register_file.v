@@ -13,13 +13,14 @@
 //              RISC-V is byte-addressed: in order to store 32x32-bit registers we need an array, each byte is addressed.
 //              Next register begins +4 bytes w.r.t the previous one.
 // 
-// Dependencies: 
+// Dependencies: rv32i_params.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+`include "rv32i_params.vh"
 
 
 module register_file(
@@ -28,19 +29,19 @@ module register_file(
 
     // READ
     input read_enable,
-    input  wire  [4:0]  rs1_addr,
-    input  wire  [4:0]  rs2_addr,
-    output wire  [31:0] rs1, // carries value that has been read with rs1_addr
-    output wire  [31:0] rs2, // carries value that has been read with rs2_addr
+    input  wire  [`REG_ADDR_WIDTH-1:0]  rs1_addr,
+    input  wire  [`REG_ADDR_WIDTH-1:0]  rs2_addr,
+    output wire  [`DATA_WIDTH-1:0]      rs1, // carries value that has been read with rs1_addr
+    output wire  [`DATA_WIDTH-1:0]      rs2, // carries value that has been read with rs2_addr
     
     // WRITE
-    input  wire        write_enable,
-    input  wire [4:0]  write_addr, // specifies which register to write to
-    input  wire [31:0] write_data  // value to wrtie
+    input  wire                      write_enable,
+    input  wire [`REG_ADDR_WIDTH-1:0]  write_addr, // specifies which register to write to
+    input  wire [`DATA_WIDTH-1:0]    write_data  // value to wrtie
     
     );
     
-    reg [31:0] registers [31:1]; // skipping x0, which is hard-wired to 32'b0
+    reg [`DATA_WIDTH-1:0] registers [`DATA_WIDTH-1:1]; // skipping x0, which is hard-wired to 32'b0
     
     // READ: no further controll is needed here; allow for bypassing in case we are writing and
     // reading from the same register simultaneously
