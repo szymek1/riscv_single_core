@@ -24,7 +24,7 @@ module pc(
     input clk,
     input rst,
     input  wire        pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
-    input  wire [31:0] pc_in, // branch/jummp target
+    input  wire [31:0] pc_in,     // branch/jummp target
     output wire [31:0] pc_out,
     output wire [31:0] pc_next
     );
