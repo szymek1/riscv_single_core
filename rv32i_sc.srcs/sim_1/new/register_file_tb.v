@@ -11,13 +11,14 @@
 // Tool Versions: 
 // Description: testbench for register file module.
 // 
-// Dependencies: 
+// Dependencies: rv32i_params.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+`include "rv32i_params.vh"
 
 
 module register_file_tb(
@@ -27,17 +28,17 @@ module register_file_tb(
     reg clk;
     reg rst;
     
-    reg [4:0] rs1_addr;
-    reg [4:0] rs2_addr;
+    reg [`REG_ADDR_WIDTH-1:0] rs1_addr;
+    reg [`REG_ADDR_WIDTH-1:0] rs2_addr;
     
-    reg       rd_enbl;
+    reg                       rd_enbl;
     
-    wire [31:0] rs1;
-    wire [31:0] rs2;
+    wire [`DATA_WIDTH-1:0]    rs1;
+    wire [`DATA_WIDTH-1:0]    rs2;
     
-    reg [4:0]  wrt_addr;
-    reg [31:0] wrt_dat;
-    reg        wrt_enbl;
+    reg [`REG_ADDR_WIDTH-1:0]  wrt_addr;
+    reg [`DATA_WIDTH-1:0]      wrt_dat;
+    reg                        wrt_enbl;
     
     task display_results;
         begin
