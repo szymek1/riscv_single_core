@@ -1,5 +1,4 @@
 import subprocess
-import pathlib
 import argparse
 from pathlib import Path
 
@@ -43,7 +42,6 @@ def execute(args) -> None:
             instruction_count = 0
             for line in hex_file:
                 line = line.strip()
-                # Skip address lines (e.g., @00000000)
                 if not line.startswith('@'):
                     # Split into bytes (little-endian)
                     bytes = line.split()
@@ -55,9 +53,9 @@ def execute(args) -> None:
                             coe_file.write(f"{word},\n")
                             instruction_count += 1
             
-            # Replace last comma with semicolon
+
             if instruction_count > 0:
-                coe_file.seek(coe_file.tell() - 2)  # Move to before last comma and newline
+                coe_file.seek(coe_file.tell() - 2) 
                 coe_file.write(";")
             else:
                 raise RuntimeError("No valid instructions found in .hex file")
@@ -74,6 +72,7 @@ def execute(args) -> None:
     if args.verbosity:
         print("Successfully created {} with {} instructions".format(file_coe, instruction_count))
     
+    # Remove intermediate files
     for f in (file_o, file_elf, file_hex):
         if f.exists():
             f.unlink()
