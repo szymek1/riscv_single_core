@@ -44,10 +44,6 @@ unisims
 *.so
 *.lib
 
-data/**/*.elf
-data/**/*.o
-data/**/*.hex
-
 ## dirs
 rv32i_sc.cache/**/
 rv32i_sc.hw/**/

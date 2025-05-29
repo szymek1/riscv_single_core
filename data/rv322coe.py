@@ -74,12 +74,10 @@ def execute(args) -> None:
     if args.verbosity:
         print("Successfully created {} with {} instructions".format(file_coe, instruction_count))
     
-    """
     for f in (file_o, file_elf, file_hex):
         if f.exists():
             f.unlink()
-    """
-
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
