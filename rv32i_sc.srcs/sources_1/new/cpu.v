@@ -25,22 +25,27 @@ module cpu(
     input      clk,
     input      rst,
     
+    // Pipeline control signals
+    input wire fetch_stall,  // Stall Fetch stage
+    input wire fetch_flush,  // Flush Fetch stage (for future use)
+    
     // Currently for testbenching
     input  wire                   pc_select,
     input  wire [3:0]             wrt_inst,
     input  wire [`DATA_WIDTH-1:0] inst_wrt_addr,
     input  wire [`DATA_WIDTH-1:0] inst_wrt_dat,
     input  wire                   rd_inst,
+    output wire [`DATA_WIDTH-1:0] pc_curr,
     output wire [`DATA_WIDTH-1:0] curr_instr
     );
     
-    reg [`DATA_WIDTH-1:0] pc_curr; // current PC
-    reg [`DATA_WIDTH-1:0] pc_nxt;  // next PC
+    wire [`DATA_WIDTH-1:0] pc_nxt;  // next PC
     
     // Instruction fetch stage
     pc PC(
         .clk(clk),
         .rst(rst),
+        .stall(fetch_stall),
         .pc_select(pc_select),
         .pc_in(pc_curr),
         .pc_out(pc_curr),
@@ -51,7 +56,9 @@ module cpu(
     wire                   rstb_busy;
     wire [`DATA_WIDTH-1:0] inst_rd_addr;
     
+    wire fetch_ready = ~rstb_busy & ~rsta_busy;
     assign inst_rd_addr = pc_curr;
+    
     instruction_fetch_bram INSTR_MEM (
         .clka(clk),
         .wea(wrt_inst),
@@ -59,7 +66,7 @@ module cpu(
         .dina(inst_wrt_dat),
         .clkb(clk),
         .rstb(rst),
-        .enb(rd_inst),
+        .enb(rd_inst & fetch_ready),
         .addrb(inst_rd_addr),
         .doutb(curr_instr),
         .rsta_busy(rsta_busy),

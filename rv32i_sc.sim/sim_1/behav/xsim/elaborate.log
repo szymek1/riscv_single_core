@@ -1,0 +1,23 @@
+Vivado Simulator v2024.2.0
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
+Running: /tools/Xilinx/Vivado/2024.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L blk_mem_gen_v8_4_9 -L unisims_ver -L unimacro_ver -L secureip -L xpm --snapshot pc_fetch_bram_integration_tb_behav xil_defaultlib.pc_fetch_bram_integration_tb xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module xil_defaultlib.pc
+Compiling module blk_mem_gen_v8_4_9.blk_mem_gen_v8_4_9_output_stage(...
+Compiling module blk_mem_gen_v8_4_9.blk_mem_gen_v8_4_9_output_stage(...
+Compiling module blk_mem_gen_v8_4_9.blk_mem_gen_v8_4_9_softecc_outpu...
+Compiling module blk_mem_gen_v8_4_9.blk_mem_gen_v8_4_9_mem_module(C_...
+Compiling module blk_mem_gen_v8_4_9.blk_mem_axi_regs_fwd_v8_4(C_DATA...
+Compiling module blk_mem_gen_v8_4_9.blk_mem_gen_v8_4_9(C_FAMILY="zyn...
+Compiling module xil_defaultlib.instruction_fetch_bram
+Compiling module xil_defaultlib.cpu
+Compiling module xil_defaultlib.pc_fetch_bram_integration_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot pc_fetch_bram_integration_tb_behav

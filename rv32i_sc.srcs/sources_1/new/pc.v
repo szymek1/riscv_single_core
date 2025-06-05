@@ -24,6 +24,7 @@
 module pc( 
     input clk,
     input rst,
+    input  wire                   stall,
     input  wire                   pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
     input  wire [`DATA_WIDTH-1:0] pc_in,     // branch/jummp target
     output wire [`DATA_WIDTH-1:0] pc_out,
@@ -38,9 +39,10 @@ module pc(
             pc_internal <= BOOT_ADDR;
         end
         
-        else begin
+        else if (!stall) begin
             pc_internal <= pc_select ? pc_in : pc_internal + `PC_STEP;
         end
+        // in case of stall=1, pc retains the last value
         
     end
 
