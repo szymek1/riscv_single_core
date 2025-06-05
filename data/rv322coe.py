@@ -37,7 +37,7 @@ def execute(args) -> None:
     
     # Convert .hex to .coe
     try:
-        with open(file_hex, 'r') as hex_file, open(file_coe, 'w') as coe_file:
+        with open(file_hex, 'r') as hex_file, open(file_coe, 'w') as coe_file, open(file_hex.with_suffix(".new.hex"), 'w') as new_hex_file:
             coe_file.write("memory_initialization_radix=16;\nmemory_initialization_vector=\n")
             instruction_count = 0
             for line in hex_file:
@@ -51,6 +51,7 @@ def execute(args) -> None:
                             # Reorder to big-endian (e.g., 93 00 50 00 -> 00500093)
                             word = f"{bytes[i+3]}{bytes[i+2]}{bytes[i+1]}{bytes[i]}"
                             coe_file.write(f"{word},\n")
+                            new_hex_file.write(f"{word}\n")
                             instruction_count += 1
             
 

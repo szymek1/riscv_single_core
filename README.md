@@ -28,6 +28,7 @@ In order to test BRAM with any program its ```.hex``` file must be placed inside
 // Load .hex file into init_mem
 $readmemh("filename.hex", init_mem);
 ```
+TODO: update python file so it returns coe and hex files
 
 High level memory layout- little endian scheme.
 
