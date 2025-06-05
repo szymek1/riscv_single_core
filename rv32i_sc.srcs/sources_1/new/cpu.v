@@ -22,7 +22,11 @@
 
 
 module cpu(
-    input clk,
-    input rst
+    input      clk,
+    input      rst,
+    input wire pc_select
     );
+    
+    
+    
 endmodule
