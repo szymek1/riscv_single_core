@@ -119,15 +119,14 @@ module pc_fetch_bram_integration_tb(
             $display("Initialized address %h with instruction %h", inst_wrt_addr, inst_wrt_dat);
         end
         
-        rd_inst = 1'b1;
-        #10;
+        rd_inst = 1'b1;    
         fetch_stall = 1'b0; // allow PC to incerement
-        #30;
+        #10;
         
         // Test 2: Read instructions according to progressing PC
         for (inst_cnt = 0; inst_cnt < inst_num; inst_cnt = inst_cnt + 1) begin
             instr_expt <= init_mem[inst_cnt];
-            #20;
+            #10;
             display_results();
             if (pc_curr == `BOOT_ADDR + `PC_STEP*inst_cnt) begin
                 $display("Test 2.1: PASS- correct PC");
@@ -135,12 +134,15 @@ module pc_fetch_bram_integration_tb(
                 $display("Test 2.1: FAIL - Incorrect PC: expected %h, got %h", 
                     `BOOT_ADDR + `PC_STEP * inst_cnt, pc_curr);
             end
+            // #10;
             if (curr_instr == init_mem[inst_cnt]) begin
                 $display("Test 2.2: PASS- correct instruction");
             end else begin
                 $display("Test 2.2: FAIL - Incorrect instruction: expected %h, got %h",
                          init_mem[inst_cnt], curr_instr);
             end
+            // #10;
+            
         end
         
         // Test 3: Disable read mid-operation

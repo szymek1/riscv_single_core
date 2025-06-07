@@ -1,7 +1,7 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2024 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2024.2 (lin64) Build 5239630 Fri Nov 08 22:34:34 MST 2024
-| Date         : Thu Jun  5 11:02:33 2025
+| Date         : Sat Jun  7 19:28:13 2025
 | Host         : sigma running 64-bit Debian GNU/Linux 12 (bookworm)
 | Command      : report_utilization -file instruction_fetch_bram_utilization_synth.rpt -pb instruction_fetch_bram_utilization_synth.pb
 | Design       : instruction_fetch_bram

@@ -84,7 +84,7 @@ module instruction_fetch_bram_tb;
         addrb = 32'h0;
         
         // Load .hex file into init_mem
-        $readmemh("add_registers.hex", init_mem);
+        $readmemh("add_registers.new.hex", init_mem);
 
         // Test 1: Reset behavior
         #10; 
@@ -114,8 +114,8 @@ module instruction_fetch_bram_tb;
 
         // Test 3: Read pre-loaded instruction at 0x0
         addrb = 32'h0; // Set read address
-        #20; // BRAM takes addrb on the raising edge and then outputs data clock cycle later
-        #5;
+        #10; // BRAM takes addrb on the raising edge and then outputs data clock cycle later
+        //#5;
         display_results();
         if (doutb == 32'h00500093)
             $display("Test 3: PASS - Read correct instruction at 0x0 (addi x1, x0, 5)");
@@ -124,8 +124,8 @@ module instruction_fetch_bram_tb;
 
         // Test 4: Read next instruction at 0x4
         addrb = 32'h4; 
-        #20; 
-        #5;
+        #10; 
+        //#5;
         display_results();
         if (doutb == 32'h00600113)
             $display("Test 4: PASS - Read correct instruction at 0x4 (addi x2, x0, 6)");
@@ -134,8 +134,8 @@ module instruction_fetch_bram_tb;
 
         // Test 5: Read next instruction at 0x8
         addrb = 32'h8; 
-        #20; 
-        #5;
+        #10; 
+        //#5;
         display_results();
         if (doutb == 32'h002081b3)
             $display("Test 5: PASS - Read correct instruction at 0x8 (add x3, x1, x2)");
@@ -144,8 +144,8 @@ module instruction_fetch_bram_tb;
 
         // Test 6: Read next instruction at 0xC
         addrb = 32'hC; 
-        #20; 
-        #5;
+        #10; 
+        //#5;
         display_results();
         if (doutb == 32'h0000006f)
             $display("Test 6: PASS - Read correct instruction at 0xC (j loop)");
@@ -163,8 +163,8 @@ module instruction_fetch_bram_tb;
 
         // Test 8: Read back written data
         addrb = 32'h10; 
-        #20; 
-        #5;
+        #10; 
+        //#5;
         display_results();
         if (doutb == 32'hDEADBEEF)
             $display("Test 8: PASS - Read correct data at 0x10 (DEADBEEF)");
