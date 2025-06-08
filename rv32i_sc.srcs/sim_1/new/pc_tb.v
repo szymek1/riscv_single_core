@@ -121,6 +121,16 @@ module pc_tb(
         end else begin
             $display("Test 5 PASSED: Multiple increments correct");
         end
+        
+        // Test 6: Stall test
+        pc_stall = 1'b1;
+        #10;
+        display_results();
+        if (pc_out !== 32'h100C) begin // 0x1004 + 4 + 4 = 0x100C
+            $display("Test 6 FAILED: Stall should perserve tha last PC value");
+        end else begin
+            $display("Test 6 PASSED: Stall paused PC incrementation");
+        end
 
         #10;
         $display("All tests completed");
