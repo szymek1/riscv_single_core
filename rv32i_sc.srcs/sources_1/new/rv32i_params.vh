@@ -8,5 +8,6 @@
 `define REG_ADDR_WIDTH    5              // Register address width (32 registers)
 `define DATA_WIDTH        32             // Data width for registers and memory
 `define PC_STEP           32'h4          // PC increment for sequential fetch
+`define I_BRAM_DEPTH      1024           // Instruction BRAM depth
 
 `endif
