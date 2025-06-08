@@ -22,16 +22,17 @@
 
 
 module bram32 (
-    input clk,
-    input rst,
+    input                         clk,
+    input                         rst,
     // Write port
-    input wire [3:0] wea,               // Write enable (4 bits for byte-wise write)
-    input wire [9:0] addra,             // Write address (10 bits for 1024 words)
-    input wire [`DATA_WIDTH-1:0] dina,  // Write data (32 bits)
+    input  wire [3:0]             wea,       // Write enable (4 bits for byte-wise write)
+    input  wire [9:0]             addra,     // Write address (10 bits for 1024 words)
+    input  wire [`DATA_WIDTH-1:0] dina,      // Write data (32 bits)
     // Read port
-    input wire enb,                     // Read enable
-    input wire [9:0] addrb,             // Read address (10 bits for 1024 words)
-    output reg [`DATA_WIDTH-1:0] doutb  // Read data (32 bits)
+    input  wire                   enb,       // Read enable
+    input  wire [9:0]             addrb,     // Read address (10 bits for 1024 words)
+    output wire                   bram_busy, // Set when memory is busy reading data
+    output reg  [`DATA_WIDTH-1:0] doutb      // Read data (32 bits)
 );
 
     // Memory array: 1024 x 32-bit words
@@ -48,7 +49,9 @@ module bram32 (
     // Read operation with 1-cycle latency
     reg [9:0] read_addr_reg;
     always @(posedge clk) begin
-        if (enb) begin
+        if (rst) begin
+            doutb <= 0;
+        end else if (enb) begin
             read_addr_reg <= addrb; // Register the address
         end
         doutb <= mem[read_addr_reg]; // Output data after 1 cycle
