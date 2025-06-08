@@ -33,10 +33,7 @@ module pc_tb(
     reg  [`DATA_WIDTH-1:0] pc_in;
     wire [`DATA_WIDTH-1:0] pc_out;
     wire [`DATA_WIDTH-1:0] pc_next;
-    
-    wire [`DATA_WIDTH-1:0] pc_saved;
-    
-    /*
+  
     task display_results;
         begin
             $display("Time=%0t | select=%b | pc_in=%h | pc_out=%h | pc_next=%h | stall=%b",
@@ -48,15 +45,6 @@ module pc_tb(
                      pc_stall);
         end
     endtask
-    */
-    task display_results;
-        begin
-            $display("Time=%0t | pc_out=%h | pc_saved=%h",
-            $time,
-            pc_out,
-            pc_saved);
-        end
-    endtask
     
     pc uut(
         .clk(clk),
@@ -66,12 +54,6 @@ module pc_tb(
         .pc_in(pc_in),
         .pc_out(pc_out),
         .pc_next(pc_next)
-    );
-    
-    pc_latch if_reg (
-        .clk(clk),
-        .pc_rlt(pc_out),
-        .pc_lt(pc_saved)
     );
     
     initial begin
