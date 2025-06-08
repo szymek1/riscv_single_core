@@ -115,9 +115,11 @@ module bram32_tb(
         $display("Test 2: Loading %0d instructions from .hex file", inst_num);
         for (i = 0; i < inst_num; i = i + 1) begin
             w_enb   = 1'b1;
+            w_sel = 4'b1111;
             w_add   = i; 
             data_in = init_mem[i]; 
             #10; 
+            w_sel = 4'b0000;
             display_results();
             if (busy_writing == 1'b1 && busy_reading == 1'b0) begin
                 $display("Test 2: Write to address %h => %h OK", w_add, data_in);
@@ -126,6 +128,53 @@ module bram32_tb(
                          w_add, busy_writing, busy_reading);
             end
         end
+        
+        w_enb = 1'b0; // Disable writes after loop
+        #10;
+        
+        // Test 3: Verify written data by reading back
+        $display("Test 3: Verifying written data");
+        /*
+        for (i = 0; i < inst_num; i = i + 1) begin
+            r_enb = 1'b1;
+            r_add = i; // Set read address
+            #10; // Wait 1 cycle to register address
+            r_enb = 1'b0; // Deassert read enable
+            #10; // Wait 1 more cycle for data output
+            display_results();
+            if (instruction == init_mem[i] && busy_reading == 1'b0) begin
+                $display("Test 3: Read from address %h successful, got %h", r_add, instruction);
+            end else begin
+                $display("Test 3: Read from address %h failed, expected %h, got %h, busy_r=%b",
+                         r_add, init_mem[i], instruction, busy_reading);
+            end
+        end
+        */
+        r_enb = 1'b1; // Keep read enable high like in a processor
+        r_add = 0; // Start at address 0
+        #10; // Wait 1 cycle for first read to register address
+        for (i = 0; i < inst_num; i = i + 1) begin
+            display_results();
+            if (i > 0) begin // Check data for previous address (due to 1-cycle latency)
+                if (instruction == init_mem[i-1]) begin
+                    $display("Test 3: Read from address %h successful, got %h", i-1, instruction);
+                end else begin
+                    $display("Test 3: Read from address %h failed, expected %h, got %h",
+                             i-1, init_mem[i-1], instruction);
+                end
+            end
+            r_add = i + 1; // Next address
+            #10; // Wait 1 cycle
+        end
+        // Check the last read
+        display_results();
+        if (instruction == init_mem[inst_num-1]) begin
+            $display("Test 3: Read from address %h successful, got %h", inst_num-1, instruction);
+        end else begin
+            $display("Test 3: Read from address %h failed, expected %h, got %h",
+                     inst_num-1, init_mem[inst_num-1], instruction);
+        end
+        r_enb = 1'b0; // Disable reads after loop
         
         w_enb = 1'b0; // Disable writes after loop
         #10;

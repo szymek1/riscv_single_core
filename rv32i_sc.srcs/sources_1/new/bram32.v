@@ -41,20 +41,22 @@ module bram32 (
     reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
 
     // Write operation (combinational for simplicity, synchronous in real designs)
-    parameter WRT_BYTE0 = 4'b0001;
-    parameter WRT_BYTE1 = 4'b0010;
-    parameter WRT_BYTE2 = 4'b0100;
-    parameter WRT_BYTE3 = 4'b1000;
+    parameter WRT_BYTE0 = 1'b1;
+    parameter WRT_BYTE1 = 1'b1;
+    parameter WRT_BYTE2 = 1'b1;
+    parameter WRT_BYTE3 = 1'b1;
 
     always @(posedge clk) begin
         if (rst) begin
             bram_busy_w <= 1'b0;
         end else if (!rst && !bram_busy_r && we) begin
             bram_busy_w <= we & !bram_busy_r;
-            if (ws == WRT_BYTE0) mem[addra][7:0]   <= dina[7:0];   
-            if (ws == WRT_BYTE1) mem[addra][15:8]  <= dina[15:8];  
-            if (ws == WRT_BYTE2) mem[addra][23:16] <= dina[23:16]; 
-            if (ws == WRT_BYTE3) mem[addra][31:24] <= dina[31:24]; 
+            if (ws[0] == WRT_BYTE0) mem[addra][7:0]   <= dina[7:0];   
+            if (ws[1] == WRT_BYTE1) mem[addra][15:8]  <= dina[15:8];  
+            if (ws[2] == WRT_BYTE2) mem[addra][23:16] <= dina[23:16]; 
+            if (ws[3] == WRT_BYTE3) mem[addra][31:24] <= dina[31:24]; 
+        end else if (!rst && !bram_busy_r && !we) begin
+            bram_busy_w <= 1'b0;
         end
     end
 

@@ -20,5 +20,25 @@ Time=60000 | write=1 | read=0
 | w_add=003 | r_add=000 
  | busy_w=1 | busy_r=0 | instr=00000000
 Test 2: Write to address 003 => 0000006f OK
+Test 3: Verifying written data
+Time=80000 | write=0 | read=1 
+| w_add=003 | r_add=000 
+ | busy_w=0 | busy_r=1 | instr=00000000
+Time=90000 | write=0 | read=1 
+| w_add=003 | r_add=001 
+ | busy_w=0 | busy_r=1 | instr=00500093
+Test 3: Read from address 00000000 successful, got 00500093
+Time=100000 | write=0 | read=1 
+| w_add=003 | r_add=002 
+ | busy_w=0 | busy_r=1 | instr=00600113
+Test 3: Read from address 00000001 successful, got 00600113
+Time=110000 | write=0 | read=1 
+| w_add=003 | r_add=003 
+ | busy_w=0 | busy_r=1 | instr=002081b3
+Test 3: Read from address 00000002 successful, got 002081b3
+Time=120000 | write=0 | read=1 
+| w_add=003 | r_add=004 
+ | busy_w=0 | busy_r=1 | instr=0000006f
+Test 3: Read from address 00000003 successful, got 0000006f
 All tests completed
-$finish called at time : 70 ns : File "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v" Line 134
+$finish called at time : 130 ns : File "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v" Line 183
