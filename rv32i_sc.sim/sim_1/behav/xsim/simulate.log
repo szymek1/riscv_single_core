@@ -1,0 +1,24 @@
+Time resolution is 1 ps
+Time=10000 | write=0 | read=0 
+| w_add=000 | r_add=000 
+ | busy_w=0 | busy_r=0 | instr=00000000
+Test 1: PASS- all values reset
+Test 2: Loading 4 instructions from .hex file
+Time=30000 | write=1 | read=0 
+| w_add=000 | r_add=000 
+ | busy_w=1 | busy_r=0 | instr=00000000
+Test 2: Write to address 000 => 00500093 OK
+Time=40000 | write=1 | read=0 
+| w_add=001 | r_add=000 
+ | busy_w=1 | busy_r=0 | instr=00000000
+Test 2: Write to address 001 => 00600113 OK
+Time=50000 | write=1 | read=0 
+| w_add=002 | r_add=000 
+ | busy_w=1 | busy_r=0 | instr=00000000
+Test 2: Write to address 002 => 002081b3 OK
+Time=60000 | write=1 | read=0 
+| w_add=003 | r_add=000 
+ | busy_w=1 | busy_r=0 | instr=00000000
+Test 2: Write to address 003 => 0000006f OK
+All tests completed
+$finish called at time : 70 ns : File "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v" Line 134

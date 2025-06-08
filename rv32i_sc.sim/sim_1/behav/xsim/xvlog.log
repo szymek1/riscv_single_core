@@ -2,6 +2,3 @@ INFO: [VRFC 10-2263] Analyzing Verilog file "/home/szymon/Documents/ISAE/researc
 INFO: [VRFC 10-311] analyzing module bram32
 INFO: [VRFC 10-2263] Analyzing Verilog file "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v" into library xil_defaultlib
 INFO: [VRFC 10-311] analyzing module bram32_tb
-ERROR: [VRFC 10-4982] syntax error near 'end' [/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v:108]
-ERROR: [VRFC 10-8549] Verilog 2000 keyword 'end' used in incorrect context [/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v:108]
-ERROR: [VRFC 10-8530] module 'bram32_tb' is ignored due to previous errors [/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v:24]

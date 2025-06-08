@@ -108,6 +108,27 @@ module bram32_tb(
         end else begin
             $display("Test 1: FAIl- expected values reset, got: busy_r=%b, busy_w=%b, instruction=%h", busy_reading, busy_writing, instruction);
         end
+        
+        // Test 2: Loading program to BRAM
+        rst   = 1'b0;
+        #10;
+        $display("Test 2: Loading %0d instructions from .hex file", inst_num);
+        for (i = 0; i < inst_num; i = i + 1) begin
+            w_enb   = 1'b1;
+            w_add   = i; 
+            data_in = init_mem[i]; 
+            #10; 
+            display_results();
+            if (busy_writing == 1'b1 && busy_reading == 1'b0) begin
+                $display("Test 2: Write to address %h => %h OK", w_add, data_in);
+            end else begin
+                $display("Test 2: Write to address %h failed, busy_w=%b, busy_r=%b",
+                         w_add, busy_writing, busy_reading);
+            end
+        end
+        
+        w_enb = 1'b0; // Disable writes after loop
+        #10;
     
         $display("All tests completed");
         $finish;
