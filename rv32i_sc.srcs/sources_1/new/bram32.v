@@ -22,7 +22,8 @@
 
 
 module bram32 (
-    input wire clk,
+    input clk,
+    input rst,
     // Write port
     input wire [3:0] wea,               // Write enable (4 bits for byte-wise write)
     input wire [9:0] addra,             // Write address (10 bits for 1024 words)
@@ -34,10 +35,9 @@ module bram32 (
 );
 
     // Memory array: 1024 x 32-bit words
-    reg [`DATA_WIDTH-1:0] mem [0:1023];
+    reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
 
     // Write operation (combinational for simplicity, synchronous in real designs)
-    integer i;
     always @(posedge clk) begin
         if (wea[0]) mem[addra][7:0]   <= dina[7:0];   // Byte 0
         if (wea[1]) mem[addra][15:8]  <= dina[15:8];  // Byte 1
