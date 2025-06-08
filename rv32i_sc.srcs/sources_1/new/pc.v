@@ -25,7 +25,7 @@ module pc(
     input clk,
     input rst,
     input  wire                   stall,
-    input  wire                   pc_select, // 1-> PC=PC+4 | 0-> PC=pc_in (accepting new target)
+    input  wire                   pc_select, // 0-> PC=PC+4 | 1-> PC=pc_in (accepting new target)
     input  wire [`DATA_WIDTH-1:0] pc_in,     // branch/jummp target
     output wire [`DATA_WIDTH-1:0] pc_out,
     output wire [`DATA_WIDTH-1:0] pc_next
