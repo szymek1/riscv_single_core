@@ -104,7 +104,7 @@ module bram32_tb(
         #10; // 1 cycle
         display_results();
         if (busy_reading == 1'b0 && busy_writing == 1'b0 && instruction == 0) begin
-            $display("Test 1: PASS- all values reset")
+            $display("Test 1: PASS- all values reset");
         end else begin
             $display("Test 1: FAIl- expected values reset, got: busy_r=%b, busy_w=%b, instruction=%h", busy_reading, busy_writing, instruction);
         end
