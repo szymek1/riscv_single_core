@@ -33,10 +33,9 @@ module pc(
     
     reg [`DATA_WIDTH-1:0] pc_internal; // current internal value of PC
     
-    parameter BOOT_ADDR = `BOOT_ADDR;
     always @(posedge clk or posedge rst) begin
         if (rst == 1'b1) begin
-            pc_internal <= BOOT_ADDR;
+            pc_internal <= `BOOT_ADDR;
         end
         
         else if (!stall) begin
