@@ -1,2 +1,0 @@
-instruction_fetch_bram.v,verilog,xil_defaultlib,../../../../rv32i_sc.gen/sources_1/ip/instruction_fetch_bram/sim/instruction_fetch_bram.v,
-glbl.v,Verilog,xil_defaultlib,glbl.v

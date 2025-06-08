@@ -1,4 +1,0 @@
-xpm_memory.sv,systemverilog,xpm,../../../../../../../../../../../tools/Xilinx/Vivado/2024.2/data/ip/xpm/xpm_memory/hdl/xpm_memory.sv,
-blk_mem_gen_v8_4.v,verilog,blk_mem_gen_v8_4_9,../../../ipstatic/simulation/blk_mem_gen_v8_4.v,
-instruction_fetch_bram.v,verilog,xil_defaultlib,../../../../rv32i_sc.gen/sources_1/ip/instruction_fetch_bram/sim/instruction_fetch_bram.v,
-glbl.v,Verilog,xil_defaultlib,glbl.v
