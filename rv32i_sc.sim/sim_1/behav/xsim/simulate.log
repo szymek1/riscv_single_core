@@ -1,25 +1,21 @@
 Time resolution is 1 ps
-Block Memory Generator module pc_fetch_bram_integration_tb.uut.INSTR_MEM.inst.native_mem_mapped_module.blk_mem_gen_v8_4_9_inst is using a behavioral model for simulation which will not precisely model memory collision behavior.
-Time=10000 | read=0 | instruction=00000000 | inst_addr=00000000 | inst_expct=xxxxxxxx | jump_addr=0
+Time=10000 | read=0 | instruction=00000000 | inst_addr=00000000 | jump_addr=0
 Test 1: PASS- Reset active
-blk_mem_gen_v8_4_9 collision detected at time: 25000, Instance: pc_fetch_bram_integration_tb.uut.INSTR_MEM.inst.native_mem_mapped_module.blk_mem_gen_v8_4_9_inst, A write address: 0, B read address: 0
 Initialized address 00000000 with instruction 00500093
 Initialized address 00000004 with instruction 00600113
 Initialized address 00000008 with instruction 002081b3
 Initialized address 0000000c with instruction 0000006f
-Time=80000 | read=1 | instruction=00600113 | inst_addr=00000008 | inst_expct=00500093 | jump_addr=0
-Test 2.1: FAIL - Incorrect PC: expected 00000000, got 00000008
-Test 2.2: FAIL - Incorrect instruction: expected 00500093, got 00600113
-Time=90000 | read=1 | instruction=00600113 | inst_addr=0000000c | inst_expct=00600113 | jump_addr=0
-Test 2.1: FAIL - Incorrect PC: expected 00000004, got 0000000c
-Test 2.2: PASS- correct instruction
-Time=100000 | read=1 | instruction=0000006f | inst_addr=00000010 | inst_expct=002081b3 | jump_addr=0
-Test 2.1: FAIL - Incorrect PC: expected 00000008, got 00000010
-Test 2.2: FAIL - Incorrect instruction: expected 002081b3, got 0000006f
-Time=110000 | read=1 | instruction=00000000 | inst_addr=00000014 | inst_expct=0000006f | jump_addr=0
-Test 2.1: FAIL - Incorrect PC: expected 0000000c, got 00000014
-Test 2.2: FAIL - Incorrect instruction: expected 0000006f, got 00000000
-Time=130000 | read=0 | instruction=00000000 | inst_addr=0000001c | inst_expct=0000006f | jump_addr=0
-Test 3: Read disabled
+Initialized address 00000010 with instruction xxxxxxxx
+Initialized address 00000014 with instruction xxxxxxxx
+Initialized address 00000018 with instruction xxxxxxxx
+Initialized address 0000001c with instruction xxxxxxxx
+Time=130000 | read=1 | instruction=xxxxxxxx | inst_addr=00000004 | jump_addr=0
+Time=140000 | read=1 | instruction=00500093 | inst_addr=00000008 | jump_addr=0
+Time=150000 | read=1 | instruction=00500093 | inst_addr=0000000c | jump_addr=0
+Time=160000 | read=1 | instruction=00500093 | inst_addr=00000010 | jump_addr=0
+Time=170000 | read=1 | instruction=00600113 | inst_addr=00000014 | jump_addr=0
+Time=180000 | read=1 | instruction=002081b3 | inst_addr=00000018 | jump_addr=0
+Time=190000 | read=1 | instruction=0000006f | inst_addr=0000001c | jump_addr=0
+Time=200000 | read=1 | instruction=xxxxxxxx | inst_addr=00000020 | jump_addr=0
 All tests completed
-$finish called at time : 180 ns : File "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/pc_fetch_bram_integration_tb.v" Line 156
+$finish called at time : 210 ns : File "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/pc_fetch_bram_integration_tb.v" Line 135

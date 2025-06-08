@@ -29,28 +29,49 @@ module pc_tb(
     reg rst;
     
     reg                    pc_select;
+    reg                    pc_stall;
     reg  [`DATA_WIDTH-1:0] pc_in;
     wire [`DATA_WIDTH-1:0] pc_out;
     wire [`DATA_WIDTH-1:0] pc_next;
     
+    wire [`DATA_WIDTH-1:0] pc_saved;
+    
+    /*
     task display_results;
         begin
-            $display("Time=%0t | select=%b | pc_in=%h | pc_out=%h | pc_next=%h",
+            $display("Time=%0t | select=%b | pc_in=%h | pc_out=%h | pc_next=%h | stall=%b",
                      $time,
                      pc_select,
                      pc_in,
                      pc_out,
-                     pc_next);
+                     pc_next,
+                     pc_stall);
+        end
+    endtask
+    */
+    task display_results;
+        begin
+            $display("Time=%0t | pc_out=%h | pc_saved=%h",
+            $time,
+            pc_out,
+            pc_saved);
         end
     endtask
     
     pc uut(
         .clk(clk),
         .rst(rst),
+        .stall(pc_stall),
         .pc_select(pc_select),
         .pc_in(pc_in),
         .pc_out(pc_out),
         .pc_next(pc_next)
+    );
+    
+    pc_latch if_reg (
+        .clk(clk),
+        .pc_rlt(pc_out),
+        .pc_lt(pc_saved)
     );
     
     initial begin
@@ -67,9 +88,10 @@ module pc_tb(
         rst       = 1'b1;
         pc_select = 1'b0;
         pc_in     = 32'h0;
+        pc_stall  = 1'b1;
 
         // Test 1: Reset behavior
-        #15 rst = 1'b0; // Deassert reset
+        #15 rst = 1'b0; pc_stall = 1'b0; // Deassert reset
         // #5;
         display_results();
         if (pc_out !== BOOT_ADDR) begin

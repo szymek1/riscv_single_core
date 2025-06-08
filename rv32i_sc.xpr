@@ -60,7 +60,7 @@
     <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSABoardId" Val="zybo-z7-20"/>
-    <Option Name="WTXSimLaunchSim" Val="116"/>
+    <Option Name="WTXSimLaunchSim" Val="189"/>
     <Option Name="WTModelSimLaunchSim" Val="0"/>
     <Option Name="WTQuestaLaunchSim" Val="0"/>
     <Option Name="WTIesLaunchSim" Val="0"/>
@@ -91,6 +91,13 @@
   <FileSets Version="1" Minor="32">
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1" RelGenDir="$PGENDIR/sources_1">
       <Filter Type="Srcs"/>
+      <File Path="$PSRCDIR/sources_1/new/bram32.v">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PSRCDIR/sources_1/new/rv32i_params.vh">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -99,6 +106,13 @@
         </FileInfo>
       </File>
       <File Path="$PSRCDIR/sources_1/new/pc.v">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/pc_latch.v">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -140,7 +154,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sim_1/new/instruction_fetch_bram_tb.v">
+      <File Path="$PSRCDIR/sim_1/new/pc_tb.v">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -148,7 +162,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sim_1/new/pc_tb.v">
+      <File Path="$PSRCDIR/sim_1/new/instruction_fetch_bram_tb.v">
         <FileInfo>
           <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -190,6 +204,7 @@
     <FileSet Name="instruction_fetch_bram" Type="BlockSrcs" RelSrcDir="$PSRCDIR/instruction_fetch_bram" RelGenDir="$PGENDIR/instruction_fetch_bram">
       <File Path="$PSRCDIR/sources_1/ip/instruction_fetch_bram/instruction_fetch_bram.xci">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
