@@ -68,73 +68,7 @@ module cpu(
         .pc_next(pc_nxt)
     );
     
-    wire                   rsta_busy;
-    wire                   rstb_busy;
-    wire [`DATA_WIDTH-1:0] inst_rd_addr;
-
-    wire fetch_ready = ~rstb_busy & ~rsta_busy;
-    // assign inst_rd_addr = pc_latched;
-
-    /*
-    instruction_fetch_bram INSTR_MEM (
-        .clka(clk),
-        .wea(wrt_inst),
-        .addra(inst_wrt_addr),
-        .dina(inst_wrt_dat),
-        .clkb(clk),
-        .rstb(rst),
-        .enb(rd_inst & fetch_ready),
-        .addrb(inst_rd_addr),
-        .doutb(instr_fetch),
-        .rsta_busy(rsta_busy),
-        .rstb_busy(rstb_busy)
-    );
-    */
-    assign inst_rd_addr = pc_latched[9:0];
-    bram32 INSTR_MEM (
-        .clk(clk),
-        .wea(wrt_inst),         // Write enable
-        .addra(inst_wrt_addr),  // Write address
-        .dina(inst_wrt_dat),    // Write data
-        .enb(rd_inst),          // Read enable (simplified, no fetch_ready for now)
-        .addrb(inst_rd_addr),   // Read address
-        .doutb(instr_fetch)     // Read data
-    );
-    // assign curr_inst = instr_fetch;
-
-    // IF/ID register
-    /*
-    reg [`DATA_WIDTH-1:0] pc_latched;
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            pc_latched    <= `BOOT_ADDR;
-            instr_latched <= 32'h0;
-        end else if (!fetch_stall) begin
-            pc_latched    <= pc_nxt;     // Latch the next PC value
-            instr_latched <= instr_fetch; // Latch the current instruction
-        end
-    end
-
-    assign pc_curr    = pc_latched;
-    assign curr_instr = instr_latched;
-    */
-    reg first_cycle;
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            instr_latched <= 32'h0;
-            first_cycle <= 1'b1;
-        end else if (!fetch_stall) begin
-            if (first_cycle) begin
-                instr_latched <= instr_fetch; // Capture first instruction
-                first_cycle <= 0;
-            end else begin
-                instr_latched <= instr_fetch; // Normal latching
-            end
-        end
-    end
-
-    // assign pc_curr    = pc_latched;
-    assign curr_instr = instr_latched;
+    
     
     
 endmodule
