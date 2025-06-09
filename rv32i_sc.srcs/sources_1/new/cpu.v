@@ -44,29 +44,30 @@ module cpu(
     output wire [`DATA_WIDTH-1:0] curr_instr
     );
 
-    wire [`DATA_WIDTH-1:0] pc_nxt;  // next PC
+    // PC -> IF stage
+    wire [`DATA_WIDTH-1:0] pc_c;
     
-    wire [`DATA_WIDTH-1:0] instr_fetch;   // <- NEW: output of BRAM
-    reg  [`DATA_WIDTH-1:0] instr_latched; // <- IF/ID register
-    wire [`DATA_WIDTH-1:0] pc_latched;
-
+    // IF stage -> IF/ID reg
+    wire [`DATA_WIDTH-1:0] if_pc;
+    wire [`DATA_WIDTH-1:0] if_stage;
+    
+    // IF/ID reg -> ID stage
+    wire [`DATA_WIDTH-1:0] id_pc;
+    wire [`DATA_WIDTH-1:0] id_stage;
+    
+    
     // Instruction fetch stage
+    wire [`DATA_WIDTH-1:0] pc_nxt;  // next PC
     pc PC(
         .clk(clk),
         .rst(rst),
         .stall(fetch_stall),
         .pc_select(pc_select),
         .pc_in(32'h0), // Ground pc_in when not jumping
-        .pc_out(pc_curr),
+        .pc_out(pc_c),
         .pc_next(pc_nxt)
     );
     
-    pc_latch IF_ID_PC_REG(
-        .clk(clk),
-        .pc_rlt(pc_curr),
-        .pc_lt(pc_latched)
-    );
-
     wire                   rsta_busy;
     wire                   rstb_busy;
     wire [`DATA_WIDTH-1:0] inst_rd_addr;
