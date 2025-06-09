@@ -30,11 +30,16 @@ module cpu(
     input wire fetch_flush,  // Flush Fetch stage (for future use)
 
     // Currently for testbenching
+    // PC input
     input  wire                   pc_select,
-    input  wire [3:0]             wrt_inst,
-    input  wire [`DATA_WIDTH-1:0] inst_wrt_addr,
-    input  wire [`DATA_WIDTH-1:0] inst_wrt_dat,
-    input  wire                   rd_inst,
+    // Instruction BRAM, write port input
+    input  wire                   w_enb,
+    input  wire [3:0]             w_sel,
+    input  wire [`DATA_WIDTH-1:0] w_add,
+    input  wire [`DATA_WIDTH-1:0] w_dat,
+    // Instruction BRAM, read port input
+    input  wire                   r_enb,
+    // Outputs
     output wire [`DATA_WIDTH-1:0] pc_curr,
     output wire [`DATA_WIDTH-1:0] curr_instr
     );
