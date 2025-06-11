@@ -1,4 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing Verilog file "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sources_1/new/bram32.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module bram32
-INFO: [VRFC 10-2263] Analyzing Verilog file "/home/szymon/Documents/ISAE/research_project/implemnetations/riscv_single_core/rv32i_sc.srcs/sim_1/new/bram32_tb.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module bram32_tb

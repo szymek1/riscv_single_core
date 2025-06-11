@@ -57,6 +57,7 @@ module bram32 (
             if (ws[3] == WRT_BYTE3) mem[addra][31:24] <= dina[31:24]; 
         end else if (!rst && !bram_busy_r && !we) begin
             bram_busy_w <= 1'b0;
+            bram_busy_r <= 1'b1;
         end
     end
 
@@ -76,7 +77,7 @@ module bram32 (
                 bram_busy_r   <= 1'b1;
                 read_valid    <= 1'b1;
             end else begin
-                bram_busy_r <= 1'b0;
+                // bram_busy_r <= 1'b0;
                 read_valid  <= 1'b0;
             end
 

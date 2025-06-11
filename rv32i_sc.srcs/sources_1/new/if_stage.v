@@ -44,7 +44,8 @@ module if_stage(
     reg [`DATA_WIDTH-1:0] fetch_pc;
     localparam IDLE  = 2'b00,  // Waiting for BRAM to be ready
                FETCH = 2'b01,  // Initiated fetch, waiting for instruction
-               VALID = 2'b10;  // Valid instruction received
+               VALID = 2'b10,  // Valid instruction received
+               WRITE = 2'b11;
     reg [1:0] state, next_state;
     
     always @(posedge clk or posedge rst) begin
@@ -58,7 +59,7 @@ module if_stage(
         end else begin
             state <= next_state;
             if (!pc_stall) begin
-                fetch_pc <= pc_curr; // Latch PC for next fetch
+                fetch_pc <= pc_curr; // Latch PC for next fetch | PC doesn't move forward correctly
             end
             // Update IF/ID outputs
             if (state == VALID) begin
@@ -82,14 +83,28 @@ module if_stage(
                     pc_stall   = 1'b1; // Stall during reset or BRAM write
                     next_state = IDLE;
                 end else begin
-                    bram_r_enb = 1'b1; // Start fetch
-                    next_state = FETCH;
+                    if (bram_busy_w) begin
+                        bram_r_enb = 1'b0; // Write will begin
+                        next_state = WRITE;
+                    if (!bram_busy_w && !bram_busy_r) begin
+                        next_state = IDLE;
+                    end
+                    end else if (bram_busy_r && !bram_busy_w) begin
+                        bram_r_enb = 1'b1; // Start fetch
+                        next_state = FETCH;
+                    end
                 end
+            end
+            WRITE: begin
+                // BRAM is writing
+                pc_stall   = 1'b1;
+                bram_r_enb = 1'b0;
+                next_state = IDLE;
             end
             FETCH: begin
                 if (rst || bram_busy_w) begin
                     pc_stall   = 1'b1;
-                    next_state = IDLE;
+                    next_state = IDLE;     
                 end else begin
                     bram_r_enb = 1'b1; // Continue reading
                     if (bram_busy_r) begin
