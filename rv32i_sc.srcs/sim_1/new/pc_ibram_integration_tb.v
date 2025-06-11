@@ -106,6 +106,7 @@ module pc_ibram_integration_tb(
         w_enb     = 1'b0;
         r_enb     = 1'b0;
         pc_stall  = 1'b1;
+        #10;
         
         // Load .hex file into init_mem
         $readmemh("add_registers.new.hex", init_mem);
@@ -128,7 +129,7 @@ module pc_ibram_integration_tb(
         w_enb    = 1'b0;
         r_enb    = 1'b1;
         pc_stall = 1'b0;
-        #10;
+        #5;
         
         for (i = 0; i < inst_numb; i = i + 1) begin
             display_results();
