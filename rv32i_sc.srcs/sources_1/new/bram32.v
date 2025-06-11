@@ -31,8 +31,9 @@ module bram32 (
     input  wire                   w_enb,
     // Read port inputs
     input  wire [9:0]             r_addr,
+    input  wire                   r_enb,
     // Outputs
-    output reg  [`DATA_WIDTH-1:0] r_dat,
+    output reg  [`DATA_WIDTH-1:0] r_dat
 );
 
     reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
@@ -44,13 +45,13 @@ module bram32 (
                 mem[i] <= 32'h0;
             end
         end
-        if (!rst && w_enb) begin
-            mem[w_addr] <= w_dat;
+        if (!rst && w_enb && !r_enb) begin
+             mem[w_addr] <= w_dat;
         end
     end
     
-    always @(r_addr) begin
-        if (!w_enb && !rst) begin
+    always @(*) begin
+        if (!w_enb && !rst && r_enb) begin
             r_dat <= mem[r_addr];
         end
     end

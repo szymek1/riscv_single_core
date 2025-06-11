@@ -35,13 +35,14 @@ module bram32_tb(
     
     // Read port inputs
     reg  [9:0]             r_addr;
+    reg                    r_enb;
     
     // Outputs
     wire [`DATA_WIDTH-1:0] instruction;
     
     task display_results;
         begin
-            $display("Time=%0t | w_enb=%b | r_enb=%b | w_addr=%h | r_addr=%h | instr=%b=h",
+            $display("Time=%0t | w_enb=%b | r_enb=%b | w_addr=%h | r_addr=%h | instr=%h",
                      $time,
                      w_enb,
                      r_enb,
@@ -60,6 +61,7 @@ module bram32_tb(
         .w_enb(w_enb),
         // Read ports inputs
         .r_addr(r_addr),
+        .r_enb(r_enb),
         // Outputs
         .r_dat(instruction)
     );
@@ -72,14 +74,51 @@ module bram32_tb(
         forever #5 clk = ~clk; 
     end
     
+    integer inst_numb;
+    integer i;
     initial begin
+        inst_numb = 4;
+    
         // Reset
-        rst <= 1'b1;
-        w_addr <= 10'h0;
-        w_dat <= 32'h0;
-        w_enb <= 1'b0;
-        r_enb <= 1'b0;
-        r_addr <= 32'h0;
+        rst    = 1'b1;
+        w_addr = 10'h0;
+        w_dat  = 32'h0;
+        w_enb  = 1'b0;
+        r_enb  = 1'b0;
+        r_addr = 32'h0;
+        
+        // Load .hex file into init_mem
+        $readmemh("add_registers.new.hex", init_mem);
+        
+        // Deassert reset and initialize BRAM
+        rst = 1'b0; 
+        #10; 
+        
+        // Write .hex contents to BRAM via Port A
+        for (i = 0; i < inst_numb; i = i + 1) begin 
+            w_addr = i; // 4-byte aligned addresses (0x0, 0x4, 0x8, 0xC)
+            w_dat = init_mem[i];
+            w_enb = 1'b1; 
+            #10;           
+            w_enb = 1'b0; 
+            $display("Initialized address %h with instruction %h", w_addr, w_dat);
+        end
+        
+        // Test 1: Read consecutive values of BRAM and compare to init_mem
+        w_enb = 1'b0;
+        r_enb = 1'b1;
+        #10;
+        
+        for (i = 0; i < inst_numb; i = i + 1) begin
+            r_addr = i;
+            #10;
+            display_results();
+            if (instruction == init_mem[i]) begin
+                $display("Test PASSED- correct memory values");
+            end else begin
+                $display("Test FAILED- expected instr=%h, got %h", init_mem[i], instruction);
+            end
+        end
     
         $display("All tests finished");
         $finish;
