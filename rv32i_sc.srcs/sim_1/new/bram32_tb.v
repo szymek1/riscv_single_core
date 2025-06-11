@@ -96,7 +96,7 @@ module bram32_tb(
         
         // Write .hex contents to BRAM via Port A
         for (i = 0; i < inst_numb; i = i + 1) begin 
-            w_addr = i; // 4-byte aligned addresses (0x0, 0x4, 0x8, 0xC)
+            w_addr = i; 
             w_dat = init_mem[i];
             w_enb = 1'b1; 
             #10;           
