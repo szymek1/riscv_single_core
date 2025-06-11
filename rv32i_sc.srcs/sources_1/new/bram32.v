@@ -22,72 +22,9 @@
 
 
 module bram32 (
-    input                         clk,
-    input                         rst,
-    // Write port
-    input  wire [3:0]             ws,          // Write select(4 bits for byte-wise write)
-    input  wire                   we,          // Write enable
-    input  wire [9:0]             addra,       // Write address (10 bits for 1024 words)
-    input  wire [`DATA_WIDTH-1:0] dina,        // Write data (32 bits)
-    // Read port
-    input  wire                   enb,         // Read enable
-    input  wire [9:0]             addrb,       // Read address (10 bits for 1024 words)
-    output reg                    bram_busy_r, // Set when memory is busy reading data
-    output reg                    bram_busy_w, // Set when memory is busy writing
-    output reg  [`DATA_WIDTH-1:0] doutb        // Read data (32 bits)
+    
 );
 
-    // Memory array: 1024 x 32-bit words
-    reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
-
-    // Write operation (combinational for simplicity, synchronous in real designs)
-    parameter WRT_BYTE0 = 1'b1;
-    parameter WRT_BYTE1 = 1'b1;
-    parameter WRT_BYTE2 = 1'b1;
-    parameter WRT_BYTE3 = 1'b1;
-
-    always @(posedge clk) begin
-        if (rst) begin
-            bram_busy_w <= 1'b0;
-        end else if (!rst && !bram_busy_r && we) begin
-            bram_busy_w <= we & !bram_busy_r;
-            if (ws[0] == WRT_BYTE0) mem[addra][7:0]   <= dina[7:0];   
-            if (ws[1] == WRT_BYTE1) mem[addra][15:8]  <= dina[15:8];  
-            if (ws[2] == WRT_BYTE2) mem[addra][23:16] <= dina[23:16]; 
-            if (ws[3] == WRT_BYTE3) mem[addra][31:24] <= dina[31:24]; 
-        end else if (!rst && !bram_busy_r && !we) begin
-            bram_busy_w <= 1'b0;
-            bram_busy_r <= 1'b1;
-        end
-    end
-
-    // Read operation with 1-cycle latency
-    reg [9:0] read_addr_reg;
-    reg       read_valid; // Tracks if a read is in progress
-    always @(posedge clk) begin
-        if (rst) begin
-            doutb         <= 0;
-            bram_busy_r   <= 1'b0;
-            read_addr_reg <= 0;
-            read_valid    <= 1'b0;
-        end else begin
-            // Register the read address and set busy/valid flags
-            if (enb & !bram_busy_w) begin
-                read_addr_reg <= addrb;
-                bram_busy_r   <= 1'b1;
-                read_valid    <= 1'b1;
-            end else begin
-                // bram_busy_r <= 1'b0;
-                read_valid  <= 1'b0;
-            end
-
-            // Output data in the next cycle
-            if (read_valid) begin
-                doutb <= mem[read_addr_reg];
-            end else begin
-                doutb <= doutb; // Hold previous value to avoid glitches
-            end
-        end
-    end
+    
 
 endmodule
