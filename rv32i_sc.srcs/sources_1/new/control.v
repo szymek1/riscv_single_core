@@ -23,13 +23,13 @@
 
 
 module control(
-    input  opcode,
-    output branch,
-    output mem_read,
-    output mem_2_reg,
-    output alu_op,
-    output mem_write,
-    output alu_src,
-    output reg_write
+    input  wire [`OPCODE_WIDTH-1:0]  opcode,
+    output wire                      branch, // if high then branch/jump
+    output wire                      mem_read,
+    output wire                      mem_2_reg,
+    output wire [1:0]                alu_op,
+    output wire                      mem_write,
+    output wire                      alu_src,
+    output wire                      reg_write
     );
 endmodule
