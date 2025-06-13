@@ -26,7 +26,14 @@ module alu(
     input  wire                    alu_src, //  1-bit indicating if the second source comes from the regfile or sign_extend module
     input  wire [`INSTR_WIDTH-1:0] src1,    //  1st source
     input  wire [`INSTR_WIDTH-1:0] src2,    //  2nd source
-    output wire [`INSTR_WIDTH-1:0] results,
-    output wire                    zero     //  Comparison results (for branch evaluation)
+    output reg  [`INSTR_WIDTH-1:0] results,
+    output reg                     zero     //  Comparison results (for branch evaluation)
     );
+    
+    always @(*) begin
+         case (alu_ctrl)
+            
+         endcase
+    end
+    
 endmodule
