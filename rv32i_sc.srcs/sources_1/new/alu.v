@@ -32,7 +32,17 @@ module alu(
     
     always @(*) begin
          case (alu_ctrl)
+            `R_TYPE_ALU_OP: begin
+            end
             
+            `LD_SW_TYPE_ALU_OP: begin
+            end
+            
+            `BEQ_TYPE_ALU_OP: begin
+            end
+            
+            default: begin
+            end
          endcase
     end
     
