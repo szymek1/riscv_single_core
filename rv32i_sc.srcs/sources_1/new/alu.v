@@ -22,11 +22,11 @@
 
 
 module alu(
-    input alu_ctrl,
-    input alu_src,
-    input src1,
-    input src2,
-    output results,
-    output zero
+    input  wire [1:0]              alu_ctrl, // 2-bit long alu opcode provided by the main control module
+    input  wire                    alu_src, //  1-bit indicating if the second source comes from the regfile or sign_extend module
+    input  wire [`INSTR_WIDTH-1:0] src1,    //  1st source
+    input  wire [`INSTR_WIDTH-1:0] src2,    //  2nd source
+    output wire [`INSTR_WIDTH-1:0] results,
+    output wire                    zero     //  Comparison results (for branch evaluation)
     );
 endmodule
