@@ -34,19 +34,13 @@ module alu(
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     always @(*) begin
          case (alu_ctrl)
-            `R_TYPE_ALU_OP: begin
-                results = 32'h0; // no implementation for now
-            end
+            2'b10    : results = 32'h0; // no implementation for now
             
-            `LD_SW_TYPE_ALU_OP: begin
-                results = src1 + src2_internal;
-            end
+            2'b00: results = src1 + src2_internal;
             
-            `BEQ_TYPE_ALU_OP: begin
-                results = 32'h0; // no implementation for now
-            end
+            2'b1  : results = 32'h0; // no implementation for now
             
-            default: results = 32'h0;
+            default           : results = 32'h0;
          endcase
     end
     
