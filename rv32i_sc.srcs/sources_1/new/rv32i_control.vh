@@ -3,7 +3,7 @@
 
 // RV32I Processor Control Module Opcodes
 // Main Control
-`define OPCODE_WIDTH       6     // 7 bits of an instruction dedicated to an opcode
+`define OPCODE_WIDTH       7     // 7 bits of an instruction dedicated to an opcode
 // TODO
 
 // ALUop
