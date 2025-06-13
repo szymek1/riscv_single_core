@@ -13,7 +13,7 @@
 //              This testbench currently assumes that only load/store operations are
 //              supported.
 // 
-// Dependencies: rv32i_params.vh
+// Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -21,6 +21,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 `include "rv32i_params.vh"
+`include "rv32i_control.vh"
 
 
 module alu_sign_extend_tb(

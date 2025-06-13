@@ -11,7 +11,7 @@
 // Tool Versions: 
 // Description: ALU
 // 
-// Dependencies: rv32i_params.vh
+// Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -19,6 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 `include "rv32i_params.vh"
+`include "rv32i_control.vh"
 
 
 module alu(
@@ -34,11 +35,11 @@ module alu(
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     always @(*) begin
          case (alu_ctrl)
-            2'b10    : results = 32'h0; // no implementation for now
+            `R_TYPE_ALU_OP    : results = 32'h0; // no implementation for now
             
-            2'b00: results = src1 + src2_internal;
+            `LD_SW_TYPE_ALU_OP: results = src1 + src2_internal;
             
-            2'b1  : results = 32'h0; // no implementation for now
+            `BEQ_TYPE_ALU_OP  : results = 32'h0; // no implementation for now
             
             default           : results = 32'h0;
          endcase
