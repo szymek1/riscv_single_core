@@ -39,7 +39,7 @@ module riscv_cpu(
     // Write port inputs
     wire  [9:0]             d_w_addr,
     wire  [`DATA_WIDTH-1:0] d_w_dat,
-    wire                    d_w_enb,
+    wire                    d_w_enb
     // Read port inputs
     // wire                    d_r_enb
     );
