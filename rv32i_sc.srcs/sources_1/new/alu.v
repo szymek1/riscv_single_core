@@ -23,7 +23,7 @@
 
 
 module alu(
-    input  wire [1:0]              alu_ctrl, // 2-bit long alu opcode provided by the main control module
+    input  wire [3:0]              alu_ctrl, // 2-bit long alu opcode provided by the main control module
     input  wire                    alu_src,  // 1-bit indicating if the second source comes from the regfile or sign_extend module
     input  wire [`INSTR_WIDTH-1:0] src1,     // 1st source (from regfile)
     input  wire [`INSTR_WIDTH-1:0] src2,     // 2nd source (from regfile)
@@ -34,14 +34,9 @@ module alu(
     
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     always @(*) begin
-         case (alu_ctrl)
-            `R_TYPE_ALU_OP    : results = 32'h0; // no implementation for now
-            
-            `LD_SW_TYPE_ALU_OP: results = src1 + src2_internal;
-            
-            `BEQ_TYPE_ALU_OP  : results = 32'h0; // no implementation for now
-            
-            default           : results = 32'h0;
+         case (alu_ctrl)            
+            `ADD   : results = src1 + src2_internal;
+            default: results = 32'h0;
          endcase
     end
     

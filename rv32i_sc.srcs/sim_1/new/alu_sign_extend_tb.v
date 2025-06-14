@@ -29,7 +29,7 @@ module alu_sign_extend_tb(
     );
     
     // ALU inputs
-    reg  [1:0]              alu_ctrl;
+    reg  [3:0]              alu_ctrl;
     reg                     alu_src;
     reg  [`INSTR_WIDTH-1:0] src1;
     reg  [`INSTR_WIDTH-1:0] src2;
@@ -74,7 +74,7 @@ module alu_sign_extend_tb(
     
     initial begin
         // Initialize signals
-        alu_ctrl = 2'b00;
+        alu_ctrl = `NOP;
         alu_src = 1'b0;
         src1 = 32'h0;
         src2 = 32'h0;
@@ -92,7 +92,7 @@ module alu_sign_extend_tb(
         // Test 2: Sign extension with positive immediate
         #10;
         imm_src  = 12'h07ff;            // +2047
-        alu_ctrl = `LD_SW_TYPE_ALU_OP;
+        alu_ctrl = `ADD;
         alu_src  = 1'b1;               // Use sign_ext
         src1     = 32'h1000;           // Base address
         #10;
@@ -130,7 +130,7 @@ module alu_sign_extend_tb(
 
         // Test 5: Invalid control (default case)
         #10;
-        alu_ctrl = 2'b11;
+        alu_ctrl = `NOP;
         #10;
         display_results();
         if (alu_results == 32'h0) begin
