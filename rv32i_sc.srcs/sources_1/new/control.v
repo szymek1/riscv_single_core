@@ -26,13 +26,13 @@ module control(
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
-    output wire                      branch, // if high then branch/jump
-    output wire                      mem_read,
-    output wire                      mem_2_reg,
-    output wire [1:0]                alu_op,
-    output wire                      mem_write,
-    output wire                      alu_src,
-    output wire                      reg_write
+    output reg                       branch, // if high then branch/jump
+    output reg                       mem_read,
+    output reg                       mem_2_reg,
+    output reg  [1:0]                alu_op,
+    output reg                       mem_write,
+    output reg                       alu_src,
+    output reg                       reg_write
     );
     
     always @(*) begin
