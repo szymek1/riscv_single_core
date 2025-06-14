@@ -35,9 +35,9 @@ module register_file(
     output wire  [`DATA_WIDTH-1:0]      rs2, // carries value that has been read with rs2_addr
     
     // WRITE
-    input  wire                      write_enable,
-    input  wire [`REG_ADDR_WIDTH-1:0]  write_addr, // specifies which register to write to
-    input  wire [`DATA_WIDTH-1:0]    write_data  // value to wrtie
+    input  wire                         write_enable,
+    input  wire [`REG_ADDR_WIDTH-1:0]   write_addr, // specifies which register to write to
+    input  wire [`DATA_WIDTH-1:0]       write_data  // value to wrtie
     
     );
     
