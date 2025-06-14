@@ -18,4 +18,11 @@
 `define LD_SW_TYPE_ALU_OP  2'b00 // I and S Type instruction
 `define BEQ_TYPE_ALU_OP    2'b01 // B Type instruction
 
+// ALU Control
+`define ADD                4'b0010
+`define SUBTRACT           4'b0110
+`define ALU_AND            4'b0000
+`define ALU_OR             4'b0001
+`define NOP                4'b1111
+
 `endif

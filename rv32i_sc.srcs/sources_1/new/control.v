@@ -29,12 +29,13 @@ module control(
     output reg                       branch, // if high then branch/jump
     output reg                       mem_read,
     output reg                       mem_2_reg,
-    output reg  [1:0]                alu_op,
+    output reg  [3:0]                alu_ctrl,
     output reg                       mem_write,
     output reg                       alu_src,
     output reg                       reg_write
     );
     
+    reg [1:0] alu_op;
     always @(*) begin
         case (opcode) 
             /*
@@ -43,7 +44,13 @@ module control(
             */
             
             `LD_TYPE_OP: begin
-                
+                branch    = 1'b0;
+                mem_read  = 1'b1;
+                mem_2_reg = 1'b1;
+                mem_write = 1'b0;
+                alu_src   = 1'b1;
+                reg_write = 1'b1; 
+                alu_op    = `LD_SW_TYPE_ALU_OP;  
             end
             
             /*
@@ -56,7 +63,30 @@ module control(
             end
             */
             default: begin
+                branch    = 1'b0;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b0;
+                alu_src   = 1'b0;
+                reg_write = 1'b0;
             end
+        endcase
+    end
+    
+    always @(*) begin
+        case(alu_op)
+            /*
+            `R_TYPE_ALU_OP: begin
+            end
+            */
+            
+            `LD_SW_TYPE_ALU_OP: alu_ctrl = `ADD;
+            
+            /*
+            `BEQ_TYPE_ALU_OP: begin
+            end
+            */
+            default           : alu_ctrl = `NOP;
         endcase
     end
     
