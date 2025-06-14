@@ -24,6 +24,8 @@
 
 module control(
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
+    input  wire [`FUNC3_WIDTH-1:0]   func3,
+    input  wire [`FUNC7_WIDTH-1:0]   func7,
     output wire                      branch, // if high then branch/jump
     output wire                      mem_read,
     output wire                      mem_2_reg,
@@ -32,4 +34,30 @@ module control(
     output wire                      alu_src,
     output wire                      reg_write
     );
+    
+    always @(*) begin
+        case (opcode) 
+            /*
+            `R_TYPE_OP: begin
+            end
+            */
+            
+            `LD_TYPE_OP: begin
+                
+            end
+            
+            /*
+            `SD_TYPE_OP: begin
+            end
+            */
+            
+            /*
+            `BEQ_TYPE_OP: begin
+            end
+            */
+            default: begin
+            end
+        endcase
+    end
+    
 endmodule

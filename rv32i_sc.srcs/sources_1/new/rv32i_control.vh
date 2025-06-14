@@ -4,7 +4,14 @@
 // RV32I Processor Control Module Opcodes
 // Main Control
 `define OPCODE_WIDTH       7     // 7 bits of an instruction dedicated to an opcode
-// TODO
+`define FUNC3_WIDTH        3
+`define FUNC7_WIDTH        7
+
+// Opcodes
+`define R_TYPE_OP          7'b0110011
+`define LD_TYPE_OP         7'b0000011
+`define SD_TYPE_OP         7'b0100011
+`define BEQ_TYPE_OP        7'b1100011
 
 // ALUop
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
