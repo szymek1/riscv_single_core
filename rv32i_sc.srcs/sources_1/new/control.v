@@ -110,8 +110,15 @@ module control(
             end
             
             
-            // `SD_TYPE_OP: begin
-            // end
+            `SD_TYPE_OP: begin
+                branch    = 1'b0;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b1;
+                alu_src   = 1'b1;
+                reg_write = 1'b0; 
+                alu_op    = `LD_SW_TYPE_ALU_OP;
+            end
             
             
             
