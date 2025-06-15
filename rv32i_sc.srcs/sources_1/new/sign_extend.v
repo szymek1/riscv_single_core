@@ -29,7 +29,7 @@ module sign_extend(
     output wire [`DATA_WIDTH-1:0] imm_signed
     );
     
-    reg imm_to_return[11:0];
+    reg [11:0] imm_to_return;
     always @(*) begin
         case (imm_src) 
             2'b00  : imm_to_return = src[24:13];             // I-Type
