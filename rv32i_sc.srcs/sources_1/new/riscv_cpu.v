@@ -103,7 +103,7 @@ module riscv_cpu(
     wire [`REG_ADDR_WIDTH-1:0] wrt_addr;
     assign wrt_addr =          instruction[11:7];
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
-    reg [`DATA_WIDTH-1:0]      data_bram_output;
+    wire [`DATA_WIDTH-1:0]     data_bram_output;
     
     register_file REGFILE(
         .clk(clk),
