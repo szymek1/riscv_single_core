@@ -241,8 +241,8 @@ module load_word_tb(
         // Write .hex contents to data BRAM via Port A
         $display("Loading data BRAM...");
         for (i_data = 0; i_data < data_numb; i_data = i_data + 1) begin 
-            // d_w_addr = i_data * 4;
-            d_w_addr = i_data;
+            d_w_addr = i_data * 4;
+            // d_w_addr = i_data;
             d_w_dat = init_mem_data[i_data];
             d_w_enb = 1'b1; 
             #10;           
