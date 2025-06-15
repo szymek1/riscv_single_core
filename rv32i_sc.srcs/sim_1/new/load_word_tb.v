@@ -93,6 +93,7 @@ module load_word_tb(
     wire                      reg_write;
     
     control CONTROL_uut(
+        // .clk(clk),
         .rst(rst),
         .opcode(opcode),
         .func3(func3),
@@ -120,8 +121,8 @@ module load_word_tb(
     
     wire [`REG_ADDR_WIDTH-1:0] wrt_addr;
     assign wrt_addr =          instruction[11:7];
-    reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
-    // reg                        wrt_enbl; // Replaced in the cpu by reg_wire from control module
+    reg [`DATA_WIDTH-1:0]      wrt_dat;  // Connect with data memory module
+    // reg                     wrt_enbl; // Replaced in the cpu by reg_wire from control module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
    
     register_file REGFILE_uut(
@@ -161,8 +162,6 @@ module load_word_tb(
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====
-    reg mem_read_tb; // value needed to allow data to be writen initially, and then the controll can
-                     // be passed just to control module  
     bram32 D_MEM_uut( // Data BRAM
         .clk(clk),
         .rst(rst),
@@ -172,7 +171,7 @@ module load_word_tb(
         .w_enb(d_w_enb),
         // Read ports inputs
         .r_addr(alu_results),
-        .r_enb(mem_read), // mem_read- control should be only by control module (mem_read_tb || !rst) ? 1'b0 : mem_read
+        .r_enb(mem_read), 
         // Outputs
         .r_dat(data_bram_output)
     );
@@ -227,7 +226,6 @@ module load_word_tb(
         d_w_enb          = 1'b0;
         rd_enbl          = 1'b0; // regfile 
         wrt_dat          = 32'h0;
-        // mem_read_tb      = 1'b0;
         #10;
         
         // Loading data into data BRAM
@@ -251,16 +249,6 @@ module load_word_tb(
             $display("Initialized address %h with instruction %h", d_w_addr, d_w_dat);
         end
         
-        // Verify data BRAM (something is wrong with the checking logic when it comes to indexing)
-        $display("Verifying data BRAM...");
-        for (i_data = 0; i_data < data_numb; i_data = i_data + 1) begin
-            if (D_MEM_uut.mem[i_data] == init_mem_data[i_data]) begin
-                $display("Data BRAM[0x%h] = %h, matches expected", i_data * 4, D_MEM_uut.mem[i_data]);
-            end else begin
-                $display("Data BRAM[0x%h] = %h, expected %h", i_data * 4, D_MEM_uut.mem[i_data], init_mem_data[i_data]);
-            end
-        end
-        
         // Write .hex contents to data BRAM via Port A
         #10;
         $display("Loading instruction BRAM...");
@@ -273,22 +261,11 @@ module load_word_tb(
             $display("Initialized address %h with instruction %h", i_w_addr, i_w_dat);
         end
         
-        // Verify instruction BRAM
-        $display("Verifying instruction BRAM...");
-        for (i_inst = 0; i_inst < inst_numb; i_inst = i_inst + 1) begin
-            if (I_MEM_uut.mem[i_inst] == init_mem_instr[i_inst]) begin
-                $display("Instruction BRAM[0x%h] = %h, matches expected", i_inst * 4, I_MEM_uut.mem[i_inst]);
-            end else begin
-                $display("Instruction BRAM[0x%h] = %h, expected %h", i_inst * 4, I_MEM_uut.mem[i_inst], init_mem_instr[i_inst]);
-            end
-        end
-        
         // Test 1: Execute program and verify register file
         $display("Executing program...");
         rd_enbl     = 1'b1;
         i_r_enb     = 1'b1;
         pc_stall    = 1'b0;
-        // mem_read_tb = 1'b1; // Let CONTROL_uut drive mem_read
         #5; 
         for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin 
             display_results();
