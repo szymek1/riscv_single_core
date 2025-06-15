@@ -85,6 +85,7 @@ module load_word_tb(
     
     // Control module outputs
     wire                      branch;
+    wire [1:0]                imm_src;
     wire                      mem_read;
     wire                      mem_2_reg;
     wire [3:0]                alu_ctrl;
@@ -99,6 +100,7 @@ module load_word_tb(
         .func3(func3),
         .func7(),
         .branch(branch),
+        .imm_src(imm_src), 
         .mem_read(mem_read),
         .mem_2_reg(mem_2_reg),
         .alu_ctrl(alu_ctrl),
@@ -140,13 +142,15 @@ module load_word_tb(
     // =====   Decode stage   =====
     // =====   Execute stage   =====
     // Sign extension
-    wire [11:0]                instr_imm;
-    assign instr_imm =         instruction[`INSTR_WIDTH-1:20];
+    // wire [11:0]                instr_imm;
+    wire [24:0]                instr_imm;
+    assign instr_imm =         instruction[`INSTR_WIDTH-1:7];
     
     wire [`INSTR_WIDTH-1:0]    immediate;
     
     sign_extend SIGN_EXTENSION(
         .src(instr_imm),
+        .imm_src(imm_src),
         .imm_signed(immediate)
     );
     
