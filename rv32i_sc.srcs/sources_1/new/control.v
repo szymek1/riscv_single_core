@@ -37,6 +37,10 @@ module control(
     output reg                       reg_write
     );
     
+    /*
+    TODO: allow for full clock synchornization, probably during swithcing to a pipelined version
+          where intermediate registers will need to handle 1 clock delays.
+    */
     reg [1:0] alu_op;
     always @(posedge rst) begin // posedge clk or posedge rst
         if (rst) begin
@@ -87,8 +91,7 @@ module control(
         end
         */
     end
-    
-    
+
     always @(*) begin
         case (opcode) 
             
@@ -125,8 +128,7 @@ module control(
             end
         endcase
     end
-    
-    
+
     always @(*) begin
         case(alu_op)
             /*
