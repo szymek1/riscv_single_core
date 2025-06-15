@@ -24,7 +24,7 @@
 
 module riscv_cpu(
     input clk,
-    input rst,
+    input rst
     );
     
     // =====   Fetch stage   =====
