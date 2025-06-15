@@ -2,6 +2,7 @@
 `define RV32I_PARAMS_V
 
 // RV32I Processor Parameters
+// General
 `define BOOT_ADDR         32'h0000_0000  // Boot address (start of instruction memory)
 `define TRAP_VECTOR       32'h0000_1000  // Trap vector for exceptions (e.g., illegal instruction)
 `define INSTR_WIDTH       32             // Instruction width in bits

@@ -1,0 +1,160 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: ISAE
+// Engineer: Szymon Bogus
+// 
+// Create Date: 06/14/2025 07:39:41 PM
+// Design Name: 
+// Module Name: riscv_cpu
+// Project Name: rv32i_sc
+// Target Devices: Zybo Z7-20
+// Tool Versions: 
+// Description: Main module assembling entire core
+// 
+// Dependencies: rv32i_params.vh, rv32i_control.vh
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+`include "rv32i_params.vh"
+`include "rv32i_control.vh"
+
+
+module riscv_cpu(
+    input clk,
+    input rst
+    );
+    
+    // =====   Fetch stage   =====
+    wire [`DATA_WIDTH-1:0] pc_out;
+    pc PC(
+        .clk(clk),
+        .rst(rst),
+        .stall(pc_stall),
+        .pc_select(1'b0),
+        .pc_in(`BOOT_ADDR),
+        .pc_out(pc_out),
+        .pc_next()
+    );
+    
+    wire [`DATA_WIDTH-1:0] instruction;
+    bram32 I_MEM( // Instruction BRAM
+        .clk(clk),
+        .rst(rst),
+        // Write ports inputs
+        .w_addr(i_w_addr),
+        .w_dat(i_w_dat),
+        .w_enb(i_w_enb),
+        // Read ports inputs
+        .r_addr(pc_out),
+        .r_enb(i_r_enb),
+        // Outputs
+        .r_dat(instruction)
+    );
+    // =====   Fetch stage   =====
+    // =====   Decode stage   =====
+    wire [`OPCODE_WIDTH-1:0]  opcode;
+    assign opcode =           instruction[6:0];
+    
+    wire [`FUNC3_WIDTH-1:0]   func3;
+    assign func3 =            instruction[14:12];
+    
+    // wire [`FUNC7_WIDTH-1:0]   func7;
+    // assign func7 = instruction[x:x];
+    
+    // Control module outputs
+    wire                      branch;
+    wire                      mem_read;
+    wire                      mem_2_reg;
+    wire [3:0]                alu_ctrl;
+    wire                      mem_write;
+    wire                      alu_src;
+    wire                      reg_write;
+    
+    control CONTROL(
+        // .clk(clk),
+        .rst(rst),
+        .opcode(opcode),
+        .func3(func3),
+        .func7(),
+        .branch(branch),
+        .mem_read(mem_read),
+        .mem_2_reg(mem_2_reg),
+        .alu_ctrl(alu_ctrl),
+        .mem_write(mem_write),
+        .alu_src(alu_src),
+        .reg_write(reg_write)
+    );
+    
+    // Register file
+    wire [`REG_ADDR_WIDTH-1:0] rs1_addr;
+    assign rs1_addr =          instruction[19:15];
+    
+    wire [`REG_ADDR_WIDTH-1:0] rs2_addr;
+    assign rs2_addr =          instruction[24:20];
+    
+    wire                       rd_enbl;
+    
+    wire [`DATA_WIDTH-1:0]     rs1;
+    wire [`DATA_WIDTH-1:0]     rs2;
+    
+    wire [`REG_ADDR_WIDTH-1:0] wrt_addr;
+    assign wrt_addr =          instruction[11:7];
+    reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
+    wire [`DATA_WIDTH-1:0]     data_bram_output;
+    
+    register_file REGFILE(
+        .clk(clk),
+        .rst(rst),
+        .read_enable(rd_enbl),
+        .rs1_addr(rs1_addr),
+        .rs2_addr(rs2_addr),
+        .rs1(rs1),
+        .rs2(rs2),
+        .write_enable(reg_write),
+        .write_addr(wrt_addr),
+        .write_data(data_bram_output) // writing to a given register with data from data BRAM
+    );
+    // =====   Decode stage   =====
+    // =====   Execute stage   =====
+    // Sign extension
+    wire [11:0]                instr_imm;
+    assign instr_imm =         instruction[`INSTR_WIDTH-1:20];
+    
+    wire [`INSTR_WIDTH-1:0]    immediate;
+    
+    sign_extend SIGN_EXTENSION(
+        .src(instr_imm),
+        .imm_signed(immediate)
+    );
+    
+    wire [`INSTR_WIDTH-1:0]    alu_results;
+    alu ALU(
+        .alu_ctrl(alu_ctrl),  // provided by control module
+        .alu_src(alu_src),    // provided by control module
+        .src1(rs1),           // provided by regfile
+        .src2(rs2),           // provided by regfile
+        .sign_ext(immediate), // provided by sign_extend
+        .results(alu_results),
+        .zero()               // not yet implemented
+    );
+    // =====   Execute stage   =====
+    // =====   Memory stage   =====
+    bram32 D_MEM( // Data BRAM
+        .clk(clk),
+        .rst(rst),
+        // Write ports inputs
+        .w_addr(d_w_addr),
+        .w_dat(d_w_dat),
+        .w_enb(d_w_enb),
+        // Read ports inputs
+        .r_addr(alu_results),
+        .r_enb(mem_read),
+        // Outputs
+        .r_dat(data_bram_output)
+    );
+    // =====   Memory stage   =====
+    
+endmodule
