@@ -25,23 +25,6 @@
 module riscv_cpu(
     input clk,
     input rst,
-    // For testbenching only
-    // PC inputs
-    wire                    pc_stall,
-    // Instruction BRAM inputs
-    // Write port inputs
-    wire  [9:0]             i_w_addr,
-    wire  [`DATA_WIDTH-1:0] i_w_dat,
-    wire                    i_w_enb,
-    // Read port inputs
-    wire                    i_r_enb,
-    // Data BRAM inputs
-    // Write port inputs
-    wire  [9:0]             d_w_addr,
-    wire  [`DATA_WIDTH-1:0] d_w_dat,
-    wire                    d_w_enb
-    // Read port inputs
-    // wire                    d_r_enb
     );
     
     // =====   Fetch stage   =====
@@ -91,6 +74,8 @@ module riscv_cpu(
     wire                      reg_write;
     
     control CONTROL(
+        // .clk(clk),
+        .rst(rst),
         .opcode(opcode),
         .func3(func3),
         .func7(),
@@ -118,12 +103,7 @@ module riscv_cpu(
     wire [`REG_ADDR_WIDTH-1:0] wrt_addr;
     assign wrt_addr =          instruction[11:7];
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
-    // reg                        wrt_enbl; // Replaced in the cpu by reg_wire from control module
     reg [`DATA_WIDTH-1:0]      data_bram_output;
-    
-    always @(*) begin
-        wrt_dat <= data_bram_output;
-    end
     
     register_file REGFILE(
         .clk(clk),
@@ -135,7 +115,7 @@ module riscv_cpu(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(wrt_dat)
+        .write_data(data_bram_output) // writing to a given register with data from data BRAM
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====
