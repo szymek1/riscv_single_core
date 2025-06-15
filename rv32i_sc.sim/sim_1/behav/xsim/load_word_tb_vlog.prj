@@ -1,0 +1,22 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../rv32i_sc.srcs/sources_1/new" \
+"../../../../rv32i_sc.srcs/sources_1/new/pc.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/register_file.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/bram32.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/alu.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/sign_extend.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/control.v" \
+"../../../../rv32i_sc.srcs/sources_1/new/riscv_cpu.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/bram32_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/pc_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/register_file_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/pc_ibram_integration_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/alu_sign_extend_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/control_alu_tb.v" \
+"../../../../rv32i_sc.srcs/sim_1/new/load_word_tb.v" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
