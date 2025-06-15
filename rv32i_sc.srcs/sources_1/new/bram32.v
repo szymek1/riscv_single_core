@@ -52,7 +52,7 @@ module bram32 (
     
     always @(*) begin
         if (!w_enb && !rst && r_enb) begin
-            r_dat <= mem[r_addr];
+            r_dat = mem[r_addr];
         end
     end
 
