@@ -23,6 +23,7 @@
 
 
 module control(
+    input                            rst,
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
@@ -34,6 +35,12 @@ module control(
     output reg                       alu_src,
     output reg                       reg_write
     );
+    
+    always @(posedge rst) begin
+        if (rst) begin
+            mem_read <= 1'b0;
+        end
+    end
     
     reg [1:0] alu_op;
     always @(*) begin

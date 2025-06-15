@@ -93,6 +93,7 @@ module load_word_tb(
     wire                      reg_write;
     
     control CONTROL_uut(
+        .rst(rst),
         .opcode(opcode),
         .func3(func3),
         .func7(),
@@ -171,7 +172,7 @@ module load_word_tb(
         .w_enb(d_w_enb),
         // Read ports inputs
         .r_addr(alu_results),
-        .r_enb(mem_read_tb), // mem_read- control should be only by control module (mem_read_tb || !rst) ? 1'b0 : mem_read
+        .r_enb(mem_read), // mem_read- control should be only by control module (mem_read_tb || !rst) ? 1'b0 : mem_read
         // Outputs
         .r_dat(data_bram_output)
     );
@@ -226,7 +227,7 @@ module load_word_tb(
         d_w_enb          = 1'b0;
         rd_enbl          = 1'b0; // regfile 
         wrt_dat          = 32'h0;
-        mem_read_tb      = 1'b0;
+        // mem_read_tb      = 1'b0;
         #10;
         
         // Loading data into data BRAM
@@ -287,7 +288,7 @@ module load_word_tb(
         rd_enbl     = 1'b1;
         i_r_enb     = 1'b1;
         pc_stall    = 1'b0;
-        mem_read_tb = 1'b1; // Let CONTROL_uut drive mem_read
+        // mem_read_tb = 1'b1; // Let CONTROL_uut drive mem_read
         #5; 
         for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin 
             display_results();
