@@ -3,13 +3,13 @@
 // Company: ISAE
 // Engineer: Szymon Bogus
 // 
-// Create Date: 06/16/2025 09:28:16 AM
+// Create Date: 06/16/2025 02:29:04 PM
 // Design Name: 
-// Module Name: store_word_tb
+// Module Name: r_type_add_tb
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: Testbench for store word (sw) instruction. It implements cpu mpdule.
+// Description: Testbench for R-type add instruction. It implements cpu module.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -22,7 +22,7 @@
 `include "rv32i_control.vh"
 
 
-module store_word_tb(
+module r_type_add_tb(
 
     );
     
@@ -82,8 +82,8 @@ module store_word_tb(
     wire [`FUNC3_WIDTH-1:0]   func3;
     assign func3 =            instruction[14:12];
     
-    // wire [`FUNC7_WIDTH-1:0]   func7;
-    // assign func7 = instruction[x:x];
+    wire [`FUNC7_WIDTH-1:0]   func7;
+    assign func7 = instruction[`DATA_WIDTH-1:25];
     
     // Control module outputs
     wire                      branch;
@@ -100,7 +100,7 @@ module store_word_tb(
         .rst(rst),
         .opcode(opcode),
         .func3(func3),
-        .func7(),
+        .func7(func7),
         .branch(branch),
         .imm_src(imm_src), 
         .mem_read(mem_read),
@@ -139,7 +139,9 @@ module store_word_tb(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(!mem_2_reg ? alu_results: data_bram_output) // writing to a given register with data from data BRAM
+        .write_data(!mem_2_reg ? alu_results: data_bram_output) // Write data source is decided based on
+                                                                // mem_2_reg flag which specifies whether the instruction is
+                                                                // operates on registers only or utilizes data BRAM
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====
@@ -226,8 +228,8 @@ module store_word_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 3; 
-        data_numb = 4; 
+        inst_numb = 5; 
+        data_numb = 2; 
         
         // Reset
         rst              = 1'b1;
@@ -245,9 +247,9 @@ module store_word_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("store_registers_test_data.hex", init_mem_data);
+        $readmemh("add_instruction_test_data.hex", init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("store_registers.new.hex", init_mem_instr);
+        $readmemh("add_instruction_test.new.hex", init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -286,24 +288,34 @@ module store_word_tb(
         i_r_enb  = 1'b1;
         pc_stall = 1'b0;
         #5;
-        for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin
+        for (i_inst = 0; i_inst < inst_numb; i_inst = i_inst + 1) begin
             display_results();
             #10;
         end
         
         // Verify results
         $display("Verifying results...");
-        if (REGFILE_uut.registers[6] == 32'h00000008) begin
+        if (REGFILE_uut.registers[5] == 32'h00000001) begin
+            $display("x5 (registers[5]) = %h, matches expected", REGFILE_uut.registers[5]);
+        end else begin
+            $display("x5 (registers[5]) = %h, expected 00000001", REGFILE_uut.registers[5]);
+        end
+        if (REGFILE_uut.registers[6] == 32'h00000002) begin
             $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
         end else begin
             $display("x6 (registers[6]) = %h, expected 00000002", REGFILE_uut.registers[6]);
         end
+        if (REGFILE_uut.registers[20] == 32'h00000003) begin
+            $display("x20 (registers[20]) = %h, matches expected", REGFILE_uut.registers[20]);
+        end else begin
+            $display("x20 (registers[20]) = %h, expected 00000003", REGFILE_uut.registers[20]);
+        end
         debug_addr = 10'hC;
         #1;
-        if (debug_data == 32'h00000008) begin // mem[0xC] (word index 0x3)
+        if (debug_data == 32'h00000003) begin // mem[0xC] (word index 0x3)
             $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
-            $display("mem[0xC] = %h, expected 00000008", debug_data);
+            $display("mem[0xC] = %h, expected 00000003", debug_data);
         end
         
         $display("All tests completed");
