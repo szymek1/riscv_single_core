@@ -3,13 +3,13 @@
 // Company: ISAE
 // Engineer: Szymon Bogus
 // 
-// Create Date: 06/14/2025 09:12:30 PM
+// Create Date: 06/16/2025 09:28:16 AM
 // Design Name: 
-// Module Name: load_word_tb
+// Module Name: store_word_tb
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: Testbench for the load word (lw) instruction. It implements cpu module.
+// Description: Testbench for store word (sw) instruction. It implements cpu mpdule.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -22,7 +22,7 @@
 `include "rv32i_control.vh"
 
 
-module load_word_tb(
+module store_word_tb(
 
     );
     
@@ -41,6 +41,8 @@ module load_word_tb(
     reg                    i_r_enb;
     // Data BRAM inputs
     // Write port inputs
+    // Later after initial loading of the memory the control for write: address, data, enable
+    // will be transfered to control module
     reg  [9:0]             d_w_addr;
     reg  [`DATA_WIDTH-1:0] d_w_dat;
     reg                    d_w_enb;
@@ -166,18 +168,27 @@ module load_word_tb(
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====
+    reg d_bram_init_done;
+    // Debug signals
+    reg  [9:0]  debug_addr;
+    wire [31:0] debug_data;
     bram32 D_MEM_uut( // Data BRAM
         .clk(clk),
         .rst(rst),
         // Write ports inputs
-        .w_addr(d_w_addr),
-        .w_dat(d_w_dat),
-        .w_enb(d_w_enb),
+        // this change is required as we load the data intially through
+        // the testbench
+        .w_addr(d_bram_init_done ? alu_results : d_w_addr),
+        .w_dat(d_bram_init_done  ? rs2         : d_w_dat),
+        .w_enb(d_bram_init_done  ? mem_write   : d_w_enb),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read), 
         // Outputs
-        .r_dat(data_bram_output)
+        .r_dat(data_bram_output),
+        // Debug read port
+        .debug_addr(debug_addr),
+        .debug_data(debug_data)
     );
     // =====   Memory stage   =====
     // =================================
@@ -215,8 +226,8 @@ module load_word_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 5;
-        data_numb = 4;
+        inst_numb = 3; 
+        data_numb = 4; 
         
         // Reset
         rst              = 1'b1;
@@ -228,14 +239,15 @@ module load_word_tb(
         d_w_addr         = 10'h0;
         d_w_dat          = 32'h0;
         d_w_enb          = 1'b0;
-        rd_enbl          = 1'b0; // regfile 
+        rd_enbl          = 1'b0;
         wrt_dat          = 32'h0;
+        d_bram_init_done = 1'b0;
         #10;
         
         // Loading data into data BRAM
-        $readmemh("load_registers_test_data.hex", init_mem_data);
+        $readmemh("store_registers_test_data.hex", init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("load_registers.new.hex", init_mem_instr);
+        $readmemh("store_registers.new.hex", init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -253,6 +265,9 @@ module load_word_tb(
             $display("Initialized address %h with instruction %h", d_w_addr, d_w_dat);
         end
         
+        d_bram_init_done = 1'b1; // from now one control module dictates reads and wrties to data BRAM
+        #10;
+        
         // Write .hex contents to data BRAM via Port A
         #10;
         $display("Loading instruction BRAM...");
@@ -265,41 +280,32 @@ module load_word_tb(
             $display("Initialized address %h with instruction %h", i_w_addr, i_w_dat);
         end
         
-        // Test 1: Execute program and verify register file
+        // Execute program
         $display("Executing program...");
-        rd_enbl     = 1'b1;
-        i_r_enb     = 1'b1;
-        pc_stall    = 1'b0;
-        #5; 
-        for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin 
+        rd_enbl  = 1'b1;
+        i_r_enb  = 1'b1;
+        pc_stall = 1'b0;
+        #5;
+        for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin
             display_results();
             #10;
         end
         
-        // Verify register file contents
-        $display("Verifying register file...");
-        if (REGFILE_uut.registers[5] == 32'h00000001) begin
-            $display("x5 (registers[5]) = %h, matches expected", REGFILE_uut.registers[5]);
-        end else begin
-            $display("x5 (registers[5]) = %h, expected 00000001", REGFILE_uut.registers[5]);
-        end
-        if (REGFILE_uut.registers[6] == 32'h00000002) begin
+        // Verify results
+        $display("Verifying results...");
+        if (REGFILE_uut.registers[6] == 32'h00000008) begin
             $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
         end else begin
             $display("x6 (registers[6]) = %h, expected 00000002", REGFILE_uut.registers[6]);
         end
-        if (REGFILE_uut.registers[7] == 32'h00000003) begin
-            $display("x7 (registers[7]) = %h, matches expected", REGFILE_uut.registers[7]);
+        debug_addr = 10'hC;
+        #1;
+        if (debug_data == 32'h00000008) begin // mem[0xC] (word index 0x3)
+            $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
-            $display("x7 (registers[7]) = %h, expected 00000003", REGFILE_uut.registers[7]);
-        end
-        if (REGFILE_uut.registers[8] == 32'h00000004) begin
-            $display("x8 (registers[8]) = %h, matches expected", REGFILE_uut.registers[8]);
-        end else begin
-            $display("x8 (registers[8]) = %h, expected 00000004", REGFILE_uut.registers[8]);
+            $display("mem[0xC] = %h, expected 00000008", debug_data);
         end
         
-    
         $display("All tests completed");
         $finish;
     end

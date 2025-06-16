@@ -23,10 +23,20 @@
 
 
 module sign_extend(
-    input  wire [11:0]            src,
+    input  wire [24:0]            src, // span [24:0] for covering with the same hardware: I-Type, S-Type and U-Type instructions with immediate fields
+                                       // occupying different parts of an instruction
+    input  wire [1:0]             imm_src,
     output wire [`DATA_WIDTH-1:0] imm_signed
     );
     
-    assign imm_signed = {{20{src[11]}}, src};
+    reg [11:0] imm_to_return;
+    always @(*) begin
+        case (imm_src) 
+            2'b00  : imm_to_return = src[24:13];             // I-Type
+            2'b01  : imm_to_return = {src[24:18], src[4:0]}; // S-Type
+            default: imm_to_return = 12'b0;
+        endcase
+    end
+    assign imm_signed = {{20{imm_to_return[11]}}, imm_to_return};
     
 endmodule

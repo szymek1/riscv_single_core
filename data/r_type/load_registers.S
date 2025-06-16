@@ -1,4 +1,4 @@
-# Simple RV32I program using R-type instruction
+# Simple RV32I program using I-type instruction
 # Executes multiple load word instructions on different registers
 
 .text

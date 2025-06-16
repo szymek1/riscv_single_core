@@ -28,7 +28,8 @@ module control(
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
-    output reg                       branch, // if high then branch/jump
+    output reg                       branch,  // if high then branch/jump
+    output reg  [1:0]                imm_src, // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
     output reg                       mem_2_reg,
     output reg  [3:0]                alu_ctrl,
@@ -48,6 +49,7 @@ module control(
             mem_2_reg <= 1'b0;
             reg_write <= 1'b0;
             branch    <= 1'b0;
+            imm_src   <= 2'b00;
             mem_write <= 1'b0;
             alu_src   <= 1'b0;
             alu_op    <= 2'b11; // Default ALU op
@@ -98,9 +100,10 @@ module control(
             // `R_TYPE_OP: begin
             // end
             
-            
+            // I-Type (lw)
             `LD_TYPE_OP: begin
                 branch    = 1'b0;
+                imm_src   = 2'b00;
                 mem_read  = 1'b1;
                 mem_2_reg = 1'b1;
                 mem_write = 1'b0;
@@ -109,9 +112,17 @@ module control(
                 alu_op    = `LD_SW_TYPE_ALU_OP;  
             end
             
-            
-            // `SD_TYPE_OP: begin
-            // end
+            // S-Type (sd)
+            `SD_TYPE_OP: begin
+                branch    = 1'b0;
+                imm_src   = 2'b01;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b1;
+                alu_src   = 1'b1;
+                reg_write = 1'b0; 
+                alu_op    = `LD_SW_TYPE_ALU_OP;
+            end
             
             
             

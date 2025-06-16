@@ -26,14 +26,17 @@ module bram32 (
     input                         clk,
     input                         rst,
     // Write port inputs
-    input  wire [9:0]             w_addr,
+    input  wire [9:0]             w_addr, // bytes alignment
     input  wire [`DATA_WIDTH-1:0] w_dat,
     input  wire                   w_enb,
     // Read port inputs
     input  wire [9:0]             r_addr,
     input  wire                   r_enb,
     // Outputs
-    output reg  [`DATA_WIDTH-1:0] r_dat
+    output reg  [`DATA_WIDTH-1:0] r_dat,
+    // Debug read port
+    input  wire [9:0]  debug_addr,
+    output wire [31:0] debug_data
 );
 
     reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
@@ -55,5 +58,7 @@ module bram32 (
             r_dat = mem[r_addr];
         end
     end
-
+    
+    assign debug_data = mem[debug_addr]; // used only for debugging, like accessing data after store for a validation
+    
 endmodule
