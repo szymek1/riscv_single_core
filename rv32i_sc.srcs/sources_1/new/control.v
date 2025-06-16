@@ -157,7 +157,8 @@ module control(
                     `F3_ADD_SUB: begin
                         case (func7)
                             `F7_ADD_AND_OR: alu_ctrl = `ADD;
-                            default       : alu_ctrl = `NOP; // subtract for now
+                            `F7_SUB       : alu_ctrl = `SUBTRACT;
+                            default       : alu_ctrl = `NOP; // rest for now
                         endcase
                     end
                     
