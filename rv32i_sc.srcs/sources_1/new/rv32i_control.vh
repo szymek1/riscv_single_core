@@ -25,4 +25,13 @@
 `define ALU_OR             4'b0001
 `define NOP                4'b1111
 
+// Func3 field
+`define F3_ADD_SUB         3'b000
+`define F3_ALU_AND         3'b111
+`define F3_ALU_OR          3'b110
+
+// Func7 field
+`define F7_ADD_AND_OR      7'b0000000
+`define F7_SUB             7'b0100000
+
 `endif
