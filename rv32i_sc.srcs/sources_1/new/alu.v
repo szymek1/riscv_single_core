@@ -37,6 +37,8 @@ module alu(
          case (alu_ctrl)            
             `ADD     : results = src1 + src2_internal;
             `SUBTRACT: results = src1 - src2_internal;
+            `ALU_AND : results = src1 & src2_internal;
+            `ALU_OR  : results = src1 | src2_internal;
             default: results = 32'h0;
          endcase
     end
