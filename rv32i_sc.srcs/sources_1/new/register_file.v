@@ -45,7 +45,6 @@ module register_file(
     
     // WRITE: clk and rst are the control signals
     integer reg_id;
-    // reg [`DATA_WIDTH-1:0] rs1_reg, rs2_reg;
     always @(posedge clk or posedge rst) begin
     
         // Reset on rst set
