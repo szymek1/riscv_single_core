@@ -31,8 +31,8 @@ module register_file(
     input read_enable,
     input  wire  [`REG_ADDR_WIDTH-1:0]  rs1_addr,
     input  wire  [`REG_ADDR_WIDTH-1:0]  rs2_addr,
-    output wire  [`DATA_WIDTH-1:0]      rs1, // carries value that has been read with rs1_addr
-    output wire  [`DATA_WIDTH-1:0]      rs2, // carries value that has been read with rs2_addr
+    output reg   [`DATA_WIDTH-1:0]      rs1, // carries value that has been read with rs1_addr
+    output reg   [`DATA_WIDTH-1:0]      rs2, // carries value that has been read with rs2_addr
     
     // WRITE
     input  wire                         write_enable,
@@ -70,11 +70,23 @@ module register_file(
         
         else if (write_enable == 1'b1 && write_addr != 5'b0) begin
             registers[write_addr] <= write_data;
-        end else if (read_enable) begin
+        end 
+        /*
+        else if (read_enable) begin
             rs1_reg <= (write_enable && rs1_addr == write_addr && rs1_addr != 5'b0) ? write_data : registers[rs1_addr];
             rs2_reg <= (write_enable && rs2_addr == write_addr && rs2_addr != 5'b0) ? write_data : registers[rs2_addr];
         end
-        
+        */
+    end
+    
+    always @(*) begin
+        if (read_enable) begin
+            rs1 = (rs1_addr == 0) ? 32'h0 : registers[rs1_addr];
+            rs2 = (rs2_addr == 0) ? 32'h0 : registers[rs2_addr];
+        end else begin
+            rs1 = 32'hx;
+            rs2 = 32'hx;
+        end
     end
     
     /*
@@ -83,7 +95,7 @@ module register_file(
         rs2 <= read_enable ? registers[rs2_addr] : 32'h0;
     end
     */
-    assign rs1 = rs1_reg;
-    assign rs2 = rs2_reg;
+    // assign rs1 = rs1_reg;
+    // assign rs2 = rs2_reg;
     
 endmodule

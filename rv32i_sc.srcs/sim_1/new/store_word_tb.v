@@ -169,6 +169,9 @@ module store_word_tb(
     // =====   Execute stage   =====
     // =====   Memory stage   =====
     reg d_bram_init_done;
+    // Debug signals
+    reg  [9:0]  debug_addr;
+    wire [31:0] debug_data;
     bram32 D_MEM_uut( // Data BRAM
         .clk(clk),
         .rst(rst),
@@ -182,7 +185,10 @@ module store_word_tb(
         .r_addr(alu_results),
         .r_enb(mem_read), 
         // Outputs
-        .r_dat(data_bram_output)
+        .r_dat(data_bram_output),
+        // Debug read port
+        .debug_addr(debug_addr),
+        .debug_data(debug_data)
     );
     // =====   Memory stage   =====
     // =================================
@@ -239,9 +245,9 @@ module store_word_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("load_registers_test_data.hex", init_mem_data);
+        $readmemh("store_registers_test_data.hex", init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("load_registers.new.hex", init_mem_instr);
+        $readmemh("store_registers.new.hex", init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -276,8 +282,8 @@ module store_word_tb(
         
         // Execute program
         $display("Executing program...");
-        rd_enbl = 1'b1;
-        i_r_enb = 1'b1;
+        rd_enbl  = 1'b1;
+        i_r_enb  = 1'b1;
         pc_stall = 1'b0;
         #5;
         for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin
@@ -287,15 +293,17 @@ module store_word_tb(
         
         // Verify results
         $display("Verifying results...");
-        if (REGFILE_uut.registers[6] == 32'h00000002) begin
+        if (REGFILE_uut.registers[6] == 32'h00000008) begin
             $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
         end else begin
             $display("x6 (registers[6]) = %h, expected 00000002", REGFILE_uut.registers[6]);
         end
-        if (D_MEM_uut.mem[0x3] == 32'h00000002) begin // mem[0xC] (word index 0x3)
-            $display("mem[0xC] = %h, matches expected", D_MEM_uut.mem[0x3]);
+        debug_addr = 10'hC;
+        #1;
+        if (debug_data == 32'h00000008) begin // mem[0xC] (word index 0x3)
+            $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
-            $display("mem[0xC] = %h, expected 00000002", D_MEM_uut.mem[0x3]);
+            $display("mem[0xC] = %h, expected 00000008", debug_data);
         end
         
         $display("All tests completed");
