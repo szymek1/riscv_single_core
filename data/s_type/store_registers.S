@@ -4,8 +4,8 @@
 .text
 .global _start
 _start:
-    # Load words from memory into registers x5, x6, x7, x8
-    lw x6, 4(x10)           # x6 = mem[0x1004] = 0x00000002
+    # Load words from memory into registers x6
+    lw x6, 4(x10)           # x6 = mem[0x1004] = 0x00000008
     sw x6, 0xC(x0)          # take value from reg x6 and store it in the memory
                             # provided the address that is in x0 offset by 0xC
     # Infinite loop to prevent undefined behavior
