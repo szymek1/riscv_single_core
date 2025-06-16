@@ -97,8 +97,17 @@ module control(
     always @(*) begin
         case (opcode) 
             
-            // `R_TYPE_OP: begin
-            // end
+            // R-Type (add, sub, and, or)
+            `R_TYPE_OP: begin
+                branch    = 1'b0;
+                imm_src   = 2'b00;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b0;
+                alu_src   = 1'b0;
+                reg_write = 1'b1; 
+                alu_op    = `R_TYPE_ALU_OP;
+            end
             
             // I-Type (lw)
             `LD_TYPE_OP: begin
@@ -142,12 +151,22 @@ module control(
 
     always @(*) begin
         case(alu_op)
-            /*
-            `R_TYPE_ALU_OP: begin
-            end
-            */
             
-            `LD_SW_TYPE_ALU_OP: alu_ctrl = `ADD;
+            `R_TYPE_ALU_OP: begin
+                case (func3)
+                    `F3_ADD_SUB: begin
+                        case (func7)
+                            `F7_ADD_AND_OR: alu_ctrl = `ADD;
+                            default       : alu_ctrl = `NOP; // subtract for now
+                        endcase
+                    end
+                    
+                    default    : alu_ctrl = `NOP; // all the rest for now
+                endcase
+            end
+            
+            
+            `LD_SW_TYPE_ALU_OP : alu_ctrl = `ADD;
             
             /*
             `BEQ_TYPE_ALU_OP: begin
