@@ -43,18 +43,9 @@ module register_file(
     
     reg [`DATA_WIDTH-1:0] registers [`DATA_WIDTH-1:1]; // skipping x0, which is hard-wired to 32'b0
     
-    // READ: no further controll is needed here; allow for bypassing in case we are writing and
-    // reading from the same register simultaneously
-    /*
-    assign rs1 = (read_enable && write_enable && rs1_addr == write_addr && rs1_addr != 5'b0) ? write_data :
-             (read_enable && rs1_addr != 5'b0) ? registers[rs1_addr] : 32'b0;
-    assign rs2 = (read_enable && write_enable && rs2_addr == write_addr && rs2_addr != 5'b0) ? write_data :
-             (read_enable && rs2_addr != 5'b0) ? registers[rs2_addr] : 32'b0;
-    */
-    
     // WRITE: clk and rst are the control signals
     integer reg_id;
-    reg [`DATA_WIDTH-1:0] rs1_reg, rs2_reg;
+    // reg [`DATA_WIDTH-1:0] rs1_reg, rs2_reg;
     always @(posedge clk or posedge rst) begin
     
         // Reset on rst set
@@ -64,38 +55,28 @@ module register_file(
             for (reg_id = 1 ; reg_id < 32; reg_id = reg_id + 1) begin
                 registers[reg_id] <= 32'b0;
             end
-            rs1_reg <= 0;
-            rs2_reg <= 0;
+            rs1 <= 32'h0;
+            rs2 <= 32'h0;
         end
         
         else if (write_enable == 1'b1 && write_addr != 5'b0) begin
             registers[write_addr] <= write_data;
         end 
-        /*
-        else if (read_enable) begin
-            rs1_reg <= (write_enable && rs1_addr == write_addr && rs1_addr != 5'b0) ? write_data : registers[rs1_addr];
-            rs2_reg <= (write_enable && rs2_addr == write_addr && rs2_addr != 5'b0) ? write_data : registers[rs2_addr];
-        end
-        */
     end
     
     always @(*) begin
         if (read_enable) begin
-            rs1 = (rs1_addr == 0) ? 32'h0 : registers[rs1_addr];
-            rs2 = (rs2_addr == 0) ? 32'h0 : registers[rs2_addr];
+            // Regfile read with forwarding in case of parallel write
+            rs1 = (rs1_addr == 0) ? 32'h0 :
+              (write_enable && rs1_addr == write_addr && rs1_addr != 5'b0) ? write_data :
+              registers[rs1_addr];
+            rs2 = (rs2_addr == 0) ? 32'h0 :
+                  (write_enable && rs2_addr == write_addr && rs2_addr != 5'b0) ? write_data :
+                  registers[rs2_addr];
         end else begin
-            rs1 = 32'hx;
-            rs2 = 32'hx;
+            rs1 = 32'h0;
+            rs2 = 32'h0;
         end
     end
-    
-    /*
-    always @(*) begin
-        rs1 <= read_enable ? registers[rs1_addr] : 32'h0;
-        rs2 <= read_enable ? registers[rs2_addr] : 32'h0;
-    end
-    */
-    // assign rs1 = rs1_reg;
-    // assign rs2 = rs2_reg;
     
 endmodule
