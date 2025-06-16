@@ -137,7 +137,7 @@ module load_word_tb(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(data_bram_output) // writing to a given register with data from data BRAM
+        .write_data(!mem_2_reg ? alu_results: data_bram_output) // writing to a given register with data from data BRAM
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====

@@ -117,7 +117,9 @@ module riscv_cpu(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(data_bram_output) // writing to a given register with data from data BRAM
+        .write_data(!mem_2_reg ? alu_results: data_bram_output) // Write data source is decided based on
+                                                                // mem_2_reg flag which specifies whether the instruction is
+                                                                // operates on registers only or utilizes data BRAM
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====
