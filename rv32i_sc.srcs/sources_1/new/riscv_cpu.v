@@ -66,6 +66,7 @@ module riscv_cpu(
     
     // Control module outputs
     wire                      branch;
+    wire [1:0]                imm_src;
     wire                      mem_read;
     wire                      mem_2_reg;
     wire [3:0]                alu_ctrl;
@@ -80,6 +81,7 @@ module riscv_cpu(
         .func3(func3),
         .func7(),
         .branch(branch),
+        .imm_src(imm_src),
         .mem_read(mem_read),
         .mem_2_reg(mem_2_reg),
         .alu_ctrl(alu_ctrl),
@@ -120,13 +122,14 @@ module riscv_cpu(
     // =====   Decode stage   =====
     // =====   Execute stage   =====
     // Sign extension
-    wire [11:0]                instr_imm;
-    assign instr_imm =         instruction[`INSTR_WIDTH-1:20];
+    wire [24:0]                instr_imm;
+    assign instr_imm =         instruction[`INSTR_WIDTH-1:7];
     
     wire [`INSTR_WIDTH-1:0]    immediate;
     
     sign_extend SIGN_EXTENSION(
         .src(instr_imm),
+        .imm_src(imm_src),
         .imm_signed(immediate)
     );
     
@@ -146,9 +149,9 @@ module riscv_cpu(
         .clk(clk),
         .rst(rst),
         // Write ports inputs
-        .w_addr(d_w_addr),
-        .w_dat(d_w_dat),
-        .w_enb(d_w_enb),
+        .w_addr(alu_results),
+        .w_dat(rs2),
+        .w_enb(mem_write),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read),
