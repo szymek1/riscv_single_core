@@ -9,7 +9,7 @@
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: ALU
+// Description: ALU with IGNORED overflow detection.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -35,7 +35,10 @@ module alu(
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     always @(*) begin
          case (alu_ctrl)            
-            `ADD   : results = src1 + src2_internal;
+            `ADD     : results = src1 + src2_internal;
+            `SUBTRACT: results = src1 - src2_internal;
+            `ALU_AND : results = src1 & src2_internal;
+            `ALU_OR  : results = src1 | src2_internal;
             default: results = 32'h0;
          endcase
     end
