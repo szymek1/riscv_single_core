@@ -29,6 +29,9 @@
 `define F3_ADD_SUB         3'b000
 `define F3_ALU_AND         3'b111
 `define F3_ALU_OR          3'b110
+// Func3 field- branch decoder
+`define F3_BEQ             3'b000
+`define F3_BNE             3'b001
 
 // Func7 field
 `define F7_ADD_AND_OR      7'b0000000

@@ -153,7 +153,7 @@ module control(
             end
             
             default: begin
-                is_branch = 1'b1;
+                is_branch = 1'b0;
                 is_jump   = 1'b0;
                 imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
@@ -197,7 +197,11 @@ module control(
     // Branch decoder
     reg branch_taken;
     always @(*) begin
-        
+        case (func3)
+            `F3_BEQ: branch_taken = is_branch & alu_zero;
+            `F3_BNE: branch_taken = is_branch & ~alu_zero;
+            default: branch_taken = 1'b0; // all the rest for now
+        endcase
     end
     
     assign branch = branch_taken | is_jump;
