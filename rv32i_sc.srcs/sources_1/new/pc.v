@@ -26,7 +26,7 @@ module pc(
     input rst,
     input  wire                   stall,
     input  wire                   pc_select, // 0-> PC=PC+4 | 1-> PC=pc_in (accepting new target)
-    input  wire [`DATA_WIDTH-1:0] pc_in,     // branch/jummp target
+    input  wire [`DATA_WIDTH-1:0] pc_in,     // sign_extend immediate output used to calculate next pc
     output wire [`DATA_WIDTH-1:0] pc_out,
     output wire [`DATA_WIDTH-1:0] pc_next
     );
@@ -39,7 +39,7 @@ module pc(
         end
         
         else if (!stall) begin
-            pc_internal <= pc_select ? pc_in : pc_internal + `PC_STEP;
+            pc_internal <= pc_select ? pc_internal + pc_in : pc_internal + `PC_STEP;
         end
         // in case of stall=1, pc retains the last value
         
