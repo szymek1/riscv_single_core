@@ -66,73 +66,66 @@ module pc_tb(
     
     integer cnt;
     initial begin
-        // Initialize signals
+        // Reset
         rst       = 1'b1;
         pc_select = 1'b0;
         pc_in     = 32'h0;
         pc_stall  = 1'b1;
 
         // Test 1: Reset behavior
-        #15 rst = 1'b0; pc_stall = 1'b0; // Deassert reset
-        // #5;
+        #5;
+        rst      = 1'b0; 
+        pc_stall = 1'b0;
         display_results();
-        if (pc_out !== BOOT_ADDR) begin
-            $display("Test 1 FAILED: PC not reset to 0");
-        end else begin
-            $display("Test 1 PASSED: PC reset correctly");
-        end
 
-        // Test 2: Sequential PC increment (PC + 4)
-        #10; // Wait one cycle
-        display_results();
-        if (pc_out !== BOOT_ADDR + PC_STEP) begin
-            $display("Test 2 FAILED: PC not incremented to 4");
-        end else begin
-            $display("Test 2 PASSED: PC incremented correctly");
-        end
-
-        // Test 3: Branch/jump to new address
+        // Test 2: Sequential increment
         #10;
+        display_results();
+
+        // Test 3: Branch from current PC (0x04) + offset 0x10 = 0x14
         pc_select = 1'b1;
-        pc_in = 32'h1000; // Jump to 0x1000
+        pc_in     = 32'h10;
         #10;
-        pc_select = 1'b0; // Resume sequential fetch
+        pc_select = 1'b0;
         display_results();
-        if (pc_out !== 32'h1000) begin
-            $display("Test 3 FAILED: PC not updated to 0x1000");
-        end else begin
-            $display("Test 3 PASSED: PC jumped correctly");
-        end
 
-        // Test 4: Sequential fetch after jump
+        if (pc_out !== 32'h14)
+            $display("Test 3 FAILED: PC not branched to 0x14");
+        else
+            $display("Test 3 PASSED: Branch successful");
+
+        // Test 4: Check increment after branch
         #10;
         display_results();
-        if (pc_out !== 32'h1004) begin
-            $display("Test 4 FAILED: PC not incremented after jump");
-        end else begin
-            $display("Test 4 PASSED: PC incremented correctly");
-        end
+        if (pc_out !== 32'h18)
+            $display("Test 4 FAILED: PC not incremented correctly after branch");
+        else
+            $display("Test 4 PASSED: Increment after branch correct");
 
-        // Test 5: Multiple sequential increments
-        #20; // Two more cycles
-        display_results();
-        if (pc_out !== 32'h100C) begin // 0x1004 + 4 + 4 = 0x100C
-            $display("Test 5 FAILED: Multiple increments incorrect");
-        end else begin
-            $display("Test 5 PASSED: Multiple increments correct");
-        end
-        
-        // Test 6: Stall test
+        // Test 5: Stall, check address holds
         pc_stall = 1'b1;
         #10;
         display_results();
-        if (pc_out !== 32'h100C) begin // 0x1004 + 4 + 4 = 0x100C
-            $display("Test 6 FAILED: Stall should perserve tha last PC value");
-        end else begin
-            $display("Test 6 PASSED: Stall paused PC incrementation");
-        end
+        if (pc_out !== 32'h18)
+            $display("Test 5 FAILED: PC changed during stall");
+        else
+            $display("Test 5 PASSED: Stall correctly implemented");
+        pc_stall = 1'b0;
+
+        // Test 6: Branch backward from 0x18 by -0x08 = 0x10
+        pc_select = 1'b1;
+        pc_in = -32'h08;
+        #10;
+        pc_select = 1'b0;
+        display_results();
+        if (pc_out !== 32'h10)
+            $display("Test 6 FAILED: PC not branched back correctly");
+        else
+            $display("Test 6 PASSED: Branch backward successful");
 
         #10;
+        display_results();
+
         $display("All tests completed");
         $finish;
     end

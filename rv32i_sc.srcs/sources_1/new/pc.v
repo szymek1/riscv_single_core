@@ -22,8 +22,8 @@
 
 
 module pc( 
-    input clk,
-    input rst,
+    input                         clk,
+    input                         rst,
     input  wire                   stall,
     input  wire                   pc_select, // 0-> PC=PC+4 | 1-> PC=pc_in (accepting new target)
     input  wire [`DATA_WIDTH-1:0] pc_in,     // sign_extend immediate output used to calculate next pc
