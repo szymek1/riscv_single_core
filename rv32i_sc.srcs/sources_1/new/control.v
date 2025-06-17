@@ -29,7 +29,7 @@ module control(
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
     input  wire                      alu_zero, // input from ALU indicating whether beq/bne is taken 
-    output reg                       branch,   // if high then branch/jump
+    output wire                      branch,   // if high then branch/jump
     output reg  [2:0]                imm_src,  // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
     output reg                       mem_2_reg,
@@ -51,7 +51,6 @@ module control(
             mem_read  <= 1'b0;
             mem_2_reg <= 1'b0;
             reg_write <= 1'b0;
-            branch    <= 1'b0;
             is_branch <= 1'b0;
             is_jump   <= 1'b0;
             imm_src   <= 3'b111; // do nothing
@@ -68,7 +67,6 @@ module control(
             
             
             `LD_TYPE_OP: begin
-                branch    = 1'b0;
                 mem_read  = 1'b1;
                 mem_2_reg = 1'b1;
                 mem_write = 1'b0;
@@ -87,7 +85,6 @@ module control(
             // end
             
             default: begin
-                branch    = 1'b0;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -156,7 +153,8 @@ module control(
             end
             
             default: begin
-                branch    = 1'b0;
+                is_branch = 1'b1;
+                is_jump   = 1'b0;
                 imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
