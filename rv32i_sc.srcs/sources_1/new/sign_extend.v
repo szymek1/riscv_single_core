@@ -34,9 +34,11 @@ module sign_extend(
         case (imm_src) 
             2'b00  : imm_to_return = src[24:13];             // I-Type
             2'b01  : imm_to_return = {src[24:18], src[4:0]}; // S-Type
+            2'b10  : imm_to_return = {src[24], src[0], src[23:18], src[4:1]}; // B-Type
             default: imm_to_return = 12'b0;
         endcase
     end
-    assign imm_signed = {{20{imm_to_return[11]}}, imm_to_return};
+    assign imm_signed = (imm_src != 2'b10) ? {{20{imm_to_return[11]}}, imm_to_return} 
+                                           : {{20{imm_to_return[11]}}, imm_to_return, 1'b0};
     
 endmodule

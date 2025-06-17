@@ -133,10 +133,17 @@ module control(
                 alu_op    = `LD_SW_TYPE_ALU_OP;
             end
             
-            
-            
-            // `BEQ_TYPE_OP: begin
-            // end
+            // B-Type (beq)
+            `BEQ_TYPE_OP: begin
+                branch    = 1'b1;
+                imm_src   = 2'b01;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b0;
+                alu_src   = 1'b0;
+                reg_write = 1'b0; 
+                alu_op    = `BEQ_TYPE_ALU_OP;
+            end
             
             default: begin
                 branch    = 1'b0;
@@ -169,14 +176,11 @@ module control(
                 endcase
             end
             
-            
             `LD_SW_TYPE_ALU_OP : alu_ctrl = `ADD;
-            
-            /*
-            `BEQ_TYPE_ALU_OP: begin
-            end
-            */
-            default           : alu_ctrl = `NOP;
+           
+            `BEQ_TYPE_ALU_OP   : alu_ctrl = `SUBTRACT;
+             
+            default            : alu_ctrl = `NOP;
         endcase
     end
     
