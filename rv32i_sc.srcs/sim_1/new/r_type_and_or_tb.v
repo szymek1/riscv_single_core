@@ -87,7 +87,7 @@ module r_type_and_or_tb(
     
     // Control module outputs
     wire                      branch;
-    wire [1:0]                imm_src;
+    wire [2:0]                imm_src;
     wire                      mem_read;
     wire                      mem_2_reg;
     wire [3:0]                alu_ctrl;
