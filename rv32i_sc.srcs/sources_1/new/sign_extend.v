@@ -26,19 +26,16 @@ module sign_extend(
     input  wire [24:0]            src, // span [24:0] for covering with the same hardware: I-Type, S-Type and U-Type instructions with immediate fields
                                        // occupying different parts of an instruction
     input  wire [1:0]             imm_src,
-    output wire [`DATA_WIDTH-1:0] imm_signed
+    output reg  [`DATA_WIDTH-1:0] imm_signed
     );
     
-    reg [11:0] imm_to_return;
     always @(*) begin
         case (imm_src) 
-            2'b00  : imm_to_return = src[24:13];             // I-Type
-            2'b01  : imm_to_return = {src[24:18], src[4:0]}; // S-Type
-            2'b10  : imm_to_return = {src[24], src[0], src[23:18], src[4:1]}; // B-Type
-            default: imm_to_return = 12'b0;
+            3'b000 : imm_signed = {{20{src[24]}}, src[24:13]};                        // I-Type
+            3'b001 : imm_signed = {{20{src[24]}}, src[24:18], src[4:0]};              // S-Type
+            3'b010 : imm_signed = {{20{src[24]}}, src[0], src[23:18], src[4:1],1'b0}; // B-Type
+            default: imm_signed = 32'd0;
         endcase
     end
-    assign imm_signed = (imm_src != 2'b10) ? {{20{imm_to_return[11]}}, imm_to_return} 
-                                           : {{20{imm_to_return[11]}}, imm_to_return, 1'b0};
     
 endmodule

@@ -29,7 +29,7 @@ module control(
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
     output reg                       branch,  // if high then branch/jump
-    output reg  [1:0]                imm_src, // defines if immediate bits occupy [31:20] or are separated
+    output reg  [2:0]                imm_src, // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
     output reg                       mem_2_reg,
     output reg  [3:0]                alu_ctrl,
@@ -49,7 +49,7 @@ module control(
             mem_2_reg <= 1'b0;
             reg_write <= 1'b0;
             branch    <= 1'b0;
-            imm_src   <= 2'b00;
+            imm_src   <= 3'b111; // do nothing
             mem_write <= 1'b0;
             alu_src   <= 1'b0;
             alu_op    <= 2'b11; // Default ALU op
@@ -100,7 +100,7 @@ module control(
             // R-Type (add, sub, and, or)
             `R_TYPE_OP: begin
                 branch    = 1'b0;
-                imm_src   = 2'b00;
+                imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -112,7 +112,7 @@ module control(
             // I-Type (lw)
             `LD_TYPE_OP: begin
                 branch    = 1'b0;
-                imm_src   = 2'b00;
+                imm_src   = 3'b000;
                 mem_read  = 1'b1;
                 mem_2_reg = 1'b1;
                 mem_write = 1'b0;
@@ -124,7 +124,7 @@ module control(
             // S-Type (sd)
             `SD_TYPE_OP: begin
                 branch    = 1'b0;
-                imm_src   = 2'b01;
+                imm_src   = 3'b001;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b1;
@@ -136,7 +136,7 @@ module control(
             // B-Type (beq)
             `BEQ_TYPE_OP: begin
                 branch    = 1'b1;
-                imm_src   = 2'b01;
+                imm_src   = 3'b010;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -147,6 +147,7 @@ module control(
             
             default: begin
                 branch    = 1'b0;
+                imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
