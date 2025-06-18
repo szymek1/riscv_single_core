@@ -28,14 +28,15 @@ module riscv_cpu(
     );
     
     // =====   Fetch stage   =====
-    wire [`DATA_WIDTH-1:0] pc_out;
-    wire                   branch;
+    wire [`DATA_WIDTH-1:0]  pc_out;
+    wire                    branch;    // provided by control module- branch decoder
+    wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
     pc PC(
         .clk(clk),
         .rst(rst),
         .stall(pc_stall),
         .pc_select(branch),
-        .pc_in(`BOOT_ADDR),
+        .pc_in(immediate),
         .pc_out(pc_out),
         .pc_next()
     );
@@ -128,8 +129,6 @@ module riscv_cpu(
     // Sign extension
     wire [24:0]                instr_imm;
     assign instr_imm =         instruction[`INSTR_WIDTH-1:7];
-    
-    wire [`INSTR_WIDTH-1:0]    immediate;
     
     sign_extend SIGN_EXTENSION(
         .src(instr_imm),
