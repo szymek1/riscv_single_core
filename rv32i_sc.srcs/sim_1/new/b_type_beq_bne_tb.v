@@ -230,7 +230,7 @@ module b_type_beq_bne_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 16; 
+        inst_numb = 14; 
         data_numb = 4; 
         
         // Reset
@@ -252,7 +252,7 @@ module b_type_beq_bne_tb(
         $readmemh("beq_bne_instructions_test_data.hex", init_mem_data);
         // Loading program into instruction BRAM
         // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
-        $readmemh("beq_bne_instructions_test_no_hazard.new.hex", init_mem_instr);
+        $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -322,22 +322,22 @@ module b_type_beq_bne_tb(
         end else begin
             $display("x9 (registers[9]) = %h, expected 00000007", REGFILE_uut.registers[9]);
         end
-        if (REGFILE_uut.registers[10] == 32'h00000005) begin
+        if (REGFILE_uut.registers[10] == 32'h00000006) begin
             $display("x10 (registers[10]) = %h, matches expected", REGFILE_uut.registers[10]);
         end else begin
-            $display("x10 (registers[10]) = %h, expected 00000005", REGFILE_uut.registers[10]);
+            $display("x10 (registers[10]) = %h, expected 00000006", REGFILE_uut.registers[10]);
         end
-        if (REGFILE_uut.registers[12] == 32'h00000007) begin
-            $display("x12 (registers[12]) = %h, matches expected", REGFILE_uut.registers[12]);
+        if (REGFILE_uut.registers[11] == 32'h00000006) begin
+            $display("x11 (registers[11]) = %h, matches expected", REGFILE_uut.registers[11]);
         end else begin
-            $display("x12 (registers[12]) = %h, expected 00000007", REGFILE_uut.registers[12]);
+            $display("x11 (registers[11]) = %h, expected 00000006", REGFILE_uut.registers[11]);
         end
         debug_addr = 10'hC; 
         #1;
-        if (debug_data == 32'h00000007) begin
+        if (debug_data == 32'h00000006) begin
             $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
-            $display("mem[0xC] = %h, expected 00000007", debug_data);
+            $display("mem[0xC] = %h, expected 00000006", debug_data);
         end
         
         $display("All tests completed");
