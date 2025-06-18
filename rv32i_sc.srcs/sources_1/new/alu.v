@@ -29,7 +29,7 @@ module alu(
     input  wire [`INSTR_WIDTH-1:0] src2,     // 2nd source (from regfile)
     input  wire [`INSTR_WIDTH-1:0] sign_ext, // signe_extend module input (selected if alu_src is high) 
     output reg  [`INSTR_WIDTH-1:0] results,  
-    output reg                     zero      // Comparison results (for branch evaluation)
+    output wire                    zero      // Comparison results (for branch evaluation)
     );
     
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
@@ -42,5 +42,7 @@ module alu(
             default: results = 32'h0;
          endcase
     end
+    
+    assign zero = (results == 32'h0) ? 1'b1 : 1'b0; // set high if zero
     
 endmodule
