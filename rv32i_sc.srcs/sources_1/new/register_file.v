@@ -65,13 +65,10 @@ module register_file(
     
     always @(*) begin
         if (read_enable) begin
-            // Regfile read with forwarding in case of parallel write
-            rs1 = (rs1_addr == 0) ? 32'h0 :
-              (write_enable && rs1_addr == write_addr && rs1_addr != 5'b0) ? write_data :
-              registers[rs1_addr];
-            rs2 = (rs2_addr == 0) ? 32'h0 :
-                  (write_enable && rs2_addr == write_addr && rs2_addr != 5'b0) ? write_data :
-                  registers[rs2_addr];
+            // Regfile read- forwarding is broken for instructions like lw x10, 12(x10); it causes a deadlock
+            // which I cannot solve for now
+            rs1 = (rs1_addr == 0) ? 32'h0 : registers[rs1_addr];
+            rs2 = (rs2_addr == 0) ? 32'h0 : registers[rs2_addr];
         end else begin
             rs1 = 32'h0;
             rs2 = 32'h0;

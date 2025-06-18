@@ -28,8 +28,9 @@ module control(
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
-    output reg                       branch,  // if high then branch/jump
-    output reg  [1:0]                imm_src, // defines if immediate bits occupy [31:20] or are separated
+    input  wire                      alu_zero, // input from ALU indicating whether beq/bne is taken 
+    output wire                      branch,   // if high then branch/jump
+    output reg  [2:0]                imm_src,  // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
     output reg                       mem_2_reg,
     output reg  [3:0]                alu_ctrl,
@@ -43,13 +44,16 @@ module control(
           where intermediate registers will need to handle 1 clock delays.
     */
     reg [1:0] alu_op;
+    reg is_branch;
+    reg is_jump;
     always @(posedge rst) begin // posedge clk or posedge rst
         if (rst) begin
             mem_read  <= 1'b0;
             mem_2_reg <= 1'b0;
             reg_write <= 1'b0;
-            branch    <= 1'b0;
-            imm_src   <= 2'b00;
+            is_branch <= 1'b0;
+            is_jump   <= 1'b0;
+            imm_src   <= 3'b111; // do nothing
             mem_write <= 1'b0;
             alu_src   <= 1'b0;
             alu_op    <= 2'b11; // Default ALU op
@@ -63,7 +67,6 @@ module control(
             
             
             `LD_TYPE_OP: begin
-                branch    = 1'b0;
                 mem_read  = 1'b1;
                 mem_2_reg = 1'b1;
                 mem_write = 1'b0;
@@ -82,7 +85,6 @@ module control(
             // end
             
             default: begin
-                branch    = 1'b0;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -94,13 +96,15 @@ module control(
         */
     end
 
+    // Opcode decoder
     always @(*) begin
         case (opcode) 
             
             // R-Type (add, sub, and, or)
             `R_TYPE_OP: begin
-                branch    = 1'b0;
-                imm_src   = 2'b00;
+                is_branch = 1'b0;
+                is_jump   = 1'b0;
+                imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -111,8 +115,9 @@ module control(
             
             // I-Type (lw)
             `LD_TYPE_OP: begin
-                branch    = 1'b0;
-                imm_src   = 2'b00;
+                is_branch = 1'b0;
+                is_jump   = 1'b0;
+                imm_src   = 3'b000;
                 mem_read  = 1'b1;
                 mem_2_reg = 1'b1;
                 mem_write = 1'b0;
@@ -123,8 +128,9 @@ module control(
             
             // S-Type (sd)
             `SD_TYPE_OP: begin
-                branch    = 1'b0;
-                imm_src   = 2'b01;
+                is_branch = 1'b0;
+                is_jump   = 1'b0;
+                imm_src   = 3'b001;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b1;
@@ -133,13 +139,23 @@ module control(
                 alu_op    = `LD_SW_TYPE_ALU_OP;
             end
             
-            
-            
-            // `BEQ_TYPE_OP: begin
-            // end
+            // B-Type (beq)
+            `BEQ_TYPE_OP: begin
+                is_branch = 1'b1;
+                is_jump   = 1'b0;
+                imm_src   = 3'b010;
+                mem_read  = 1'b0;
+                mem_2_reg = 1'b0;
+                mem_write = 1'b0;
+                alu_src   = 1'b0;
+                reg_write = 1'b0; 
+                alu_op    = `BEQ_TYPE_ALU_OP;
+            end
             
             default: begin
-                branch    = 1'b0;
+                is_branch = 1'b0;
+                is_jump   = 1'b0;
+                imm_src   = 3'b111; // do nothing
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
@@ -149,6 +165,7 @@ module control(
         endcase
     end
 
+    // ALUop decoder
     always @(*) begin
         case(alu_op)
             
@@ -169,15 +186,24 @@ module control(
                 endcase
             end
             
-            
             `LD_SW_TYPE_ALU_OP : alu_ctrl = `ADD;
-            
-            /*
-            `BEQ_TYPE_ALU_OP: begin
-            end
-            */
-            default           : alu_ctrl = `NOP;
+           
+            `BEQ_TYPE_ALU_OP   : alu_ctrl = `SUBTRACT;
+             
+            default            : alu_ctrl = `NOP;
         endcase
     end
+    
+    // Branch decoder
+    reg branch_taken;
+    always @(*) begin
+        case (func3)
+            `F3_BEQ: branch_taken = is_branch & alu_zero;
+            `F3_BNE: branch_taken = is_branch & ~alu_zero;
+            default: branch_taken = 1'b0; // all the rest for now
+        endcase
+    end
+    
+    assign branch = branch_taken | is_jump;
     
 endmodule
