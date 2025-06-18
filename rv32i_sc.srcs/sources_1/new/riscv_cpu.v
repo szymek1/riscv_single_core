@@ -28,13 +28,15 @@ module riscv_cpu(
     );
     
     // =====   Fetch stage   =====
-    wire [`DATA_WIDTH-1:0] pc_out;
+    wire [`DATA_WIDTH-1:0]  pc_out;
+    wire                    branch;    // provided by control module- branch decoder
+    wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
     pc PC(
         .clk(clk),
         .rst(rst),
         .stall(pc_stall),
-        .pc_select(1'b0),
-        .pc_in(`BOOT_ADDR),
+        .pc_select(branch),
+        .pc_in(immediate),
         .pc_out(pc_out),
         .pc_next()
     );
@@ -55,18 +57,18 @@ module riscv_cpu(
     );
     // =====   Fetch stage   =====
     // =====   Decode stage   =====
+    wire                      alu_zero;
     wire [`OPCODE_WIDTH-1:0]  opcode;
     assign opcode =           instruction[6:0];
     
     wire [`FUNC3_WIDTH-1:0]   func3;
     assign func3 =            instruction[14:12];
     
-    // wire [`FUNC7_WIDTH-1:0]   func7;
-    // assign func7 = instruction[x:x];
+    wire [`FUNC7_WIDTH-1:0]   func7;
+    assign func7 = instruction[`DATA_WIDTH-1:25];
     
     // Control module outputs
-    wire                      branch;
-    wire [1:0]                imm_src;
+    wire [2:0]                imm_src;
     wire                      mem_read;
     wire                      mem_2_reg;
     wire [3:0]                alu_ctrl;
@@ -79,7 +81,8 @@ module riscv_cpu(
         .rst(rst),
         .opcode(opcode),
         .func3(func3),
-        .func7(),
+        .func7(func7),
+        .alu_zero(alu_zero),
         .branch(branch),
         .imm_src(imm_src),
         .mem_read(mem_read),
@@ -127,8 +130,6 @@ module riscv_cpu(
     wire [24:0]                instr_imm;
     assign instr_imm =         instruction[`INSTR_WIDTH-1:7];
     
-    wire [`INSTR_WIDTH-1:0]    immediate;
-    
     sign_extend SIGN_EXTENSION(
         .src(instr_imm),
         .imm_src(imm_src),
@@ -143,7 +144,7 @@ module riscv_cpu(
         .src2(rs2),           // provided by regfile
         .sign_ext(immediate), // provided by sign_extend
         .results(alu_results),
-        .zero()               // not yet implemented
+        .zero(alu_zero)               
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====

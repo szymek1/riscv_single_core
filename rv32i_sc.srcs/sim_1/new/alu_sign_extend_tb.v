@@ -40,7 +40,7 @@ module alu_sign_extend_tb(
     
     // Sign extension inputs
     reg [24:0]              src;          // 25-bit source for I-type, S-type, U-type
-    reg [1:0]               imm_src;      // Selector for immediate type
+    reg [2:0]               imm_src;      // Selector for immediate type
     
     // Sign extension outputs
     // Already included in ALU inputs
@@ -82,7 +82,7 @@ module alu_sign_extend_tb(
         src1     = 32'h0;
         src2     = 32'h0;
         src      = 25'h0;
-        imm_src  = 2'b00;
+        imm_src  = 3'b111;
 
         // Test 1: Reset state
         #10;
@@ -95,8 +95,8 @@ module alu_sign_extend_tb(
 
         // Test 2: I-type positive immediate (lw-like)
         #10;
-        src     = 25'h000007ff; // I-type immediate 2047 (bits 24:13)
-        imm_src = 2'b00;        // I-type
+        src      = 25'h000007ff; // I-type immediate 2047 (bits 24:13)
+        imm_src  = 3'b000;       // I-type
         alu_ctrl = `ADD;
         alu_src  = 1'b1;        // Use sign_ext
         src1     = 32'h1000;    // Base address
@@ -111,7 +111,7 @@ module alu_sign_extend_tb(
         // Test 3: I-type negative immediate (lw-like)
         #10;
         src     = 25'hfff80000; // I-type immediate -2048 (bits 24:13)
-        imm_src = 2'b00;        // I-type
+        imm_src = 3'b000;       // I-type
         src1    = 32'h2000;     // Base address
         #10;
         display_results();
@@ -124,7 +124,7 @@ module alu_sign_extend_tb(
         // Test 4: S-type positive immediate (sw-like)
         #10;
         src     = 25'h00070005; // S-type immediate 5 (bits 24:18=0, bits 4:0=5)
-        imm_src = 2'b01;        // S-type
+        imm_src = 3'b001;       // S-type
         src1    = 32'h3000;     // Base address
         #10;
         display_results();
@@ -137,7 +137,7 @@ module alu_sign_extend_tb(
         // Test 5: S-type negative immediate (sw-like)
         #10;
         src     = 25'hff700005; // S-type immediate -5 (bits 24:18=0xff7, bits 4:0=5)
-        imm_src = 2'b01;        // S-type
+        imm_src = 3'b001;       // S-type
         src1    = 32'h4000;     // Base address
         #10;
         display_results();
