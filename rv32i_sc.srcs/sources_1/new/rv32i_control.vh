@@ -12,10 +12,12 @@
 `define LD_TYPE_OP         7'b0000011
 `define SD_TYPE_OP         7'b0100011
 `define BEQ_TYPE_OP        7'b1100011
+`define J_TYPE_OP          7'b1101111
 
 // ALUop
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
 `define LD_SW_TYPE_ALU_OP  2'b00 // I and S Type instruction
+`define J_TYPE_ALU_OP      2'b00 // J Type instruction
 `define BEQ_TYPE_ALU_OP    2'b01 // B Type instruction
 
 // ALU Control
@@ -24,6 +26,12 @@
 `define ALU_AND            4'b0000
 `define ALU_OR             4'b0001
 `define NOP                4'b1111
+
+// Write back options
+`define MEMORY_READ        2'b01
+`define ALU_RESULTS        2'b00
+`define PC_PLUS_4          2'b10
+`define NONE               2'b11
 
 // Func3 field
 `define F3_ADD_SUB         3'b000

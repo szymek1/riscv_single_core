@@ -49,6 +49,7 @@ module b_type_beq_tb(
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
+    wire [`DATA_WIDTH-1:0]  pc_plus_4;
     wire                    branch;    // provided by control module- branch decoder
     wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
     pc PC_uut(
@@ -58,7 +59,8 @@ module b_type_beq_tb(
         .pc_select(branch),
         .pc_in(immediate),
         .pc_out(pc_out),
-        .pc_next()
+        .pc_plus_4(pc_plus_4)
+        // .pc_next()
     );
     
     wire [`DATA_WIDTH-1:0] instruction;
@@ -75,7 +77,6 @@ module b_type_beq_tb(
         // Outputs
         .r_dat(instruction)
     );
-    
     // =====   Fetch stage   =====
     // =====   Decode stage   =====
     wire                      alu_zero;
@@ -96,6 +97,7 @@ module b_type_beq_tb(
     wire                      mem_write;
     wire                      alu_src;
     wire                      reg_write;
+    wire [1:0]                wrt_back_src;
     
     control CONTROL_uut(
         // .clk(clk),
@@ -111,7 +113,8 @@ module b_type_beq_tb(
         .alu_ctrl(alu_ctrl),
         .mem_write(mem_write),
         .alu_src(alu_src),
-        .reg_write(reg_write)
+        .reg_write(reg_write),
+        .wrt_back_src(wrt_back_src)
     );
     
     // Register file
@@ -128,10 +131,18 @@ module b_type_beq_tb(
     
     wire [`REG_ADDR_WIDTH-1:0] wrt_addr;
     assign wrt_addr =          instruction[11:7];
-    reg [`DATA_WIDTH-1:0]      wrt_dat;  // Connect with data memory module
-    // reg                     wrt_enbl; // Replaced in the cpu by reg_wire from control module
+    reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
-   
+    
+    reg [`DATA_WIDTH-1:0] wrt_back_data;
+    always @(*) begin
+        case (wrt_back_src)
+            `MEMORY_READ: wrt_back_data = data_bram_output;
+            `ALU_RESULTS: wrt_back_data = alu_results;
+            `PC_PLUS_4:   wrt_back_data = pc_plus_4;
+        endcase
+    end
+    
     register_file REGFILE_uut(
         .clk(clk),
         .rst(rst),
@@ -142,14 +153,10 @@ module b_type_beq_tb(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(!mem_2_reg ? alu_results: data_bram_output) // Write data source is decided based on
-                                                                // mem_2_reg flag which specifies whether the instruction is
-                                                                // operates on registers only or utilizes data BRAM
+        .write_data(wrt_back_data)                      
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====
-    // Sign extension
-    // wire [11:0]                instr_imm;
     // Sign extension
     wire [24:0]                instr_imm;
     assign instr_imm =         instruction[`INSTR_WIDTH-1:7];
@@ -161,7 +168,7 @@ module b_type_beq_tb(
     );
     
     wire [`INSTR_WIDTH-1:0]    alu_results;
-    alu ALU(
+    alu ALU_uut(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module
         .src1(rs1),           // provided by regfile

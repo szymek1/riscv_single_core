@@ -29,6 +29,7 @@ module riscv_cpu(
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
+    wire [`DATA_WIDTH-1:0]  pc_plus_4; // used for returning from a jump
     wire                    branch;    // provided by control module- branch decoder
     wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
     pc PC(
@@ -38,7 +39,7 @@ module riscv_cpu(
         .pc_select(branch),
         .pc_in(immediate),
         .pc_out(pc_out),
-        .pc_next()
+        .pc_plus_4(pc_plus_4)
     );
     
     wire [`DATA_WIDTH-1:0] instruction;
@@ -75,6 +76,7 @@ module riscv_cpu(
     wire                      mem_write;
     wire                      alu_src;
     wire                      reg_write;
+    wire [1:0]                wrt_back_src;
     
     control CONTROL(
         // .clk(clk),
@@ -90,7 +92,8 @@ module riscv_cpu(
         .alu_ctrl(alu_ctrl),
         .mem_write(mem_write),
         .alu_src(alu_src),
-        .reg_write(reg_write)
+        .reg_write(reg_write),
+        .wrt_back_src(wrt_back_src)
     );
     
     // Register file
@@ -110,6 +113,18 @@ module riscv_cpu(
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
     
+    // Block dedicated to deciding what should be the output to write back to register file.
+    // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
+    // or saving pc before the jump.
+    reg [`DATA_WIDTH-1:0] wrt_back_data;
+    always @(*) begin
+        case (wrt_back_src)
+            `MEMORY_READ: wrt_back_data = data_bram_output;
+            `ALU_RESULTS: wrt_back_data = alu_results;
+            `PC_PLUS_4:   wrt_back_data = pc_plus_4;
+        endcase
+    end
+    
     register_file REGFILE(
         .clk(clk),
         .rst(rst),
@@ -120,9 +135,7 @@ module riscv_cpu(
         .rs2(rs2),
         .write_enable(reg_write),
         .write_addr(wrt_addr),
-        .write_data(!mem_2_reg ? alu_results: data_bram_output) // Write data source is decided based on
-                                                                // mem_2_reg flag which specifies whether the instruction is
-                                                                // operates on registers only or utilizes data BRAM
+        .write_data(wrt_back_data)                      
     );
     // =====   Decode stage   =====
     // =====   Execute stage   =====
