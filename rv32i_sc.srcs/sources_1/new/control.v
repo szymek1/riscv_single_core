@@ -61,7 +61,7 @@ module control(
             alu_src               <= 1'b0;
             alu_op                <= 2'b11; // Default ALU op
             second_u_type_add_src <= 1'bx;
-            wrt_back_src          <= `NONE;
+            wrt_back_src          <= 2'bxx;
         end 
         /*
         else begin
@@ -161,7 +161,7 @@ module control(
                 alu_src               = 1'b1;
                 reg_write             = 1'b0; 
                 second_u_type_add_src = 1'bx;
-                wrt_back_src          = `NONE;
+                wrt_back_src          = 2'bxx;
                 alu_op                = `LD_SW_TYPE_ALU_OP;
             end
             
@@ -176,7 +176,7 @@ module control(
                 alu_src               = 1'b0;
                 reg_write             = 1'b0; 
                 second_u_type_add_src = 1'bx;
-                wrt_back_src          = `NONE;
+                wrt_back_src          = 2'bxx;
                 alu_op                = `BEQ_TYPE_ALU_OP;
             end
             
