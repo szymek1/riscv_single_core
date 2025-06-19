@@ -14,6 +14,8 @@
 `define BEQ_TYPE_OP        7'b1100011
 `define J_TYPE_OP          7'b1101111
 `define I_TYPE_ALU_OP      7'b0010011
+`define U_TYPE_LUI_OP      7'b0110111
+`define U_TYPE_AUIPC_OP    7'b0010111 
 
 // ALUop
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
