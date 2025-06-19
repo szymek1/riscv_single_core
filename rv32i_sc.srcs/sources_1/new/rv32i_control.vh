@@ -23,6 +23,7 @@
 `define LD_SW_TYPE_ALU_OP  2'b00 // I and S Type instruction
 `define J_TYPE_ALU_OP      2'b00 // J Type instruction
 `define BEQ_TYPE_ALU_OP    2'b01 // B Type instruction
+`define U_TYPE_ALU_OP      2'b01 // B Type instruction
 
 // ALU Control
 `define ADD                4'b0010
@@ -35,7 +36,7 @@
 `define MEMORY_READ        2'b01
 `define ALU_RESULTS        2'b00
 `define PC_PLUS_4          2'b10
-`define NONE               2'b11
+`define U_TYPE_SEC_SRC     2'b11
 
 // Func3 field
 `define F3_ADD_SUB         3'b000

@@ -28,16 +28,18 @@ module control(
     input  wire [`OPCODE_WIDTH-1:0]  opcode,
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
-    input  wire                      alu_zero, // input from ALU indicating whether beq/bne is taken 
-    output wire                      branch,   // if high then branch/jump
-    output reg  [2:0]                imm_src,  // defines if immediate bits occupy [31:20] or are separated
+    input  wire                      alu_zero,              // input from ALU indicating whether beq/bne is taken 
+    output wire                      branch,                // if high then branch/jump
+    output reg  [2:0]                imm_src,               // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
     output reg                       mem_2_reg,
     output reg  [3:0]                alu_ctrl,
     output reg                       mem_write,
     output reg                       alu_src,
     output reg                       reg_write,
-    output reg  [1:0]                wrt_back_src
+    output reg  [1:0]                wrt_back_src,
+    output reg                       second_u_type_add_src // decide what to add to immediate:
+                                                           // 1'b1: lui; 1'b0: auipc
     );
     
     /*
@@ -49,16 +51,17 @@ module control(
     reg is_jump;
     always @(posedge rst) begin // posedge clk or posedge rst
         if (rst) begin
-            mem_read     <= 1'b0;
-            mem_2_reg    <= 1'b0;
-            reg_write    <= 1'b0;
-            is_branch    <= 1'b0;
-            is_jump      <= 1'b0;
-            imm_src      <= 3'b111; // do nothing
-            mem_write    <= 1'b0;
-            alu_src      <= 1'b0;
-            alu_op       <= 2'b11; // Default ALU op
-            wrt_back_src <= `NONE;
+            mem_read              <= 1'b0;
+            mem_2_reg             <= 1'b0;
+            reg_write             <= 1'b0;
+            is_branch             <= 1'b0;
+            is_jump               <= 1'b0;
+            imm_src               <= 3'b111; // do nothing
+            mem_write             <= 1'b0;
+            alu_src               <= 1'b0;
+            alu_op                <= 2'b11; // Default ALU op
+            second_u_type_add_src <= 1'bx;
+            wrt_back_src          <= `NONE;
         end 
         /*
         else begin
@@ -104,98 +107,124 @@ module control(
             
             // R-Type (add, sub, and, or)
             `R_TYPE_OP: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b0;
-                imm_src      = 3'b111; // do nothing
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b0;
-                alu_src      = 1'b0;
-                reg_write    = 1'b1; 
-                wrt_back_src = `ALU_RESULTS;
-                alu_op       = `R_TYPE_ALU_OP;
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b111; // do nothing
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'b0;
+                reg_write             = 1'b1; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = `ALU_RESULTS;
+                alu_op                = `R_TYPE_ALU_OP;
             end
             
             // I-Type ALU (addi)
             `I_TYPE_ALU_OP: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b0;
-                imm_src      = 3'b000; 
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b0;
-                alu_src      = 1'b1;
-                reg_write    = 1'b1; 
-                wrt_back_src = `ALU_RESULTS;
-                alu_op       = `ALU_I_TYPE_OP;
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b000; 
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'b1;
+                reg_write             = 1'b1; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = `ALU_RESULTS;
+                alu_op                = `ALU_I_TYPE_OP;
             end
             
             // I-Type (lw)
             `LD_TYPE_OP: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b0;
-                imm_src      = 3'b000;
-                mem_read     = 1'b1;
-                mem_2_reg    = 1'b1;
-                mem_write    = 1'b0;
-                alu_src      = 1'b1;
-                reg_write    = 1'b1; 
-                wrt_back_src = `MEMORY_READ;
-                alu_op       = `LD_SW_TYPE_ALU_OP;  
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b000;
+                mem_read              = 1'b1;
+                mem_2_reg             = 1'b1;
+                mem_write             = 1'b0;
+                alu_src               = 1'b1;
+                reg_write             = 1'b1; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = `MEMORY_READ;
+                alu_op                = `LD_SW_TYPE_ALU_OP;  
             end
             
             // S-Type (sd)
             `SD_TYPE_OP: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b0;
-                imm_src      = 3'b001;
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b1;
-                alu_src      = 1'b1;
-                reg_write    = 1'b0; 
-                wrt_back_src = `NONE;
-                alu_op       = `LD_SW_TYPE_ALU_OP;
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b001;
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b1;
+                alu_src               = 1'b1;
+                reg_write             = 1'b0; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = `NONE;
+                alu_op                = `LD_SW_TYPE_ALU_OP;
             end
             
             // B-Type (beq)
             `BEQ_TYPE_OP: begin
-                is_branch    = 1'b1;
-                is_jump      = 1'b0;
-                imm_src      = 3'b010;
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b0;
-                alu_src      = 1'b0;
-                reg_write    = 1'b0; 
-                wrt_back_src = `NONE;
-                alu_op       = `BEQ_TYPE_ALU_OP;
+                is_branch             = 1'b1;
+                is_jump               = 1'b0;
+                imm_src               = 3'b010;
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'b0;
+                reg_write             = 1'b0; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = `NONE;
+                alu_op                = `BEQ_TYPE_ALU_OP;
             end
             
             // J-Type (jal)
             `J_TYPE_OP: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b1;
-                imm_src      = 3'b011;
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b0;
-                alu_src      = 1'bx;
-                reg_write    = 1'b1; 
-                wrt_back_src = `PC_PLUS_4;
-                alu_op       = `J_TYPE_ALU_OP;
+                is_branch             = 1'b0;
+                is_jump               = 1'b1;
+                imm_src               = 3'b011;
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'bx;
+                reg_write             = 1'b1; 
+                second_u_type_add_src = 1'bx;
+                wrt_back_src           = `PC_PLUS_4;
+                alu_op                 = `J_TYPE_ALU_OP;
+            end
+            
+            // U-Type (lui, auipc)
+            `U_TYPE_LUI_OP, `U_TYPE_AUIPC_OP: begin
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b100;
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'b1;
+                reg_write             = 1'b1;
+                if (opcode[5] == 1'b1) begin
+                    second_u_type_add_src = 1'b1; // lui
+                end else begin
+                    second_u_type_add_src = 1'b0; // auipc
+                end
+                wrt_back_src           = `U_TYPE_SEC_SRC;
+                alu_op                 = `J_TYPE_ALU_OP;
             end
             
             default: begin
-                is_branch    = 1'b0;
-                is_jump      = 1'b0;
-                imm_src      = 3'b111; // do nothing
-                mem_read     = 1'b0;
-                mem_2_reg    = 1'b0;
-                mem_write    = 1'b0;
-                alu_src      = 1'b0;
-                reg_write    = 1'b0;
-                wrt_back_src = `NONE;
+                is_branch             = 1'b0;
+                is_jump               = 1'b0;
+                imm_src               = 3'b111; // do nothing
+                mem_read              = 1'b0;
+                mem_2_reg             = 1'b0;
+                mem_write             = 1'b0;
+                alu_src               = 1'b0;
+                reg_write             = 1'b0;
+                second_u_type_add_src = 1'bx;
+                wrt_back_src          = 2'bxx;
             end
         endcase
     end
