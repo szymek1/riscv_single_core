@@ -13,9 +13,11 @@
 `define SD_TYPE_OP         7'b0100011
 `define BEQ_TYPE_OP        7'b1100011
 `define J_TYPE_OP          7'b1101111
+`define I_TYPE_ALU_OP      7'b0010011
 
 // ALUop
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
+`define I_TYPE_ALU_OP      2'b10 // I Type ALU instruction  
 `define LD_SW_TYPE_ALU_OP  2'b00 // I and S Type instruction
 `define J_TYPE_ALU_OP      2'b00 // J Type instruction
 `define BEQ_TYPE_ALU_OP    2'b01 // B Type instruction
@@ -37,6 +39,7 @@
 `define F3_ADD_SUB         3'b000
 `define F3_ALU_AND         3'b111
 `define F3_ALU_OR          3'b110
+
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
 `define F3_BNE             3'b001
