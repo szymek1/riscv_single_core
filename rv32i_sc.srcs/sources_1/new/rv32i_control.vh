@@ -12,6 +12,7 @@
 `define LD_TYPE_OP         7'b0000011
 `define SD_TYPE_OP         7'b0100011
 `define BEQ_TYPE_OP        7'b1100011
+`define J_TYPE_OP          7'b1101111
 
 // ALUop
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
