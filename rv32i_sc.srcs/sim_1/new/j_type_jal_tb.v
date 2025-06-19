@@ -3,13 +3,13 @@
 // Company: ISAE
 // Engineer: Szymon Bogus
 // 
-// Create Date: 06/16/2025 02:29:04 PM
+// Create Date: 06/19/2025 02:57:38 PM
 // Design Name: 
-// Module Name: r_type_add_tb
+// Module Name: j_type_jal_tb
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: Testbench for R-type add instruction. It implements cpu module.
+// Description: Testbench for jal instruction. It implements cpu module.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -22,7 +22,7 @@
 `include "rv32i_control.vh"
 
 
-module r_type_add_tb(
+module j_type_jal_tb(
 
     );
     
@@ -202,7 +202,6 @@ module r_type_add_tb(
         .debug_data(debug_data)
     );
     // =====   Memory stage   =====
-    // =================================
     // =====   Testbench related   =====
     
     task display_results;
@@ -237,8 +236,8 @@ module r_type_add_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 5; 
-        data_numb = 2; 
+        inst_numb = 20; 
+        data_numb = 3; 
         
         // Reset
         rst              = 1'b1;
@@ -256,9 +255,10 @@ module r_type_add_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("add_instruction_test_data.hex", init_mem_data);
+        $readmemh("jal_instruction_test_data.hex", init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("add_instruction_test.new.hex", init_mem_instr);
+        // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
+        $readmemh("jal_instruction_test.new.hex", init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -268,7 +268,6 @@ module r_type_add_tb(
         $display("Loading data BRAM...");
         for (i_data = 0; i_data < data_numb; i_data = i_data + 1) begin 
             d_w_addr = i_data * 4;
-            // d_w_addr = i_data;
             d_w_dat = init_mem_data[i_data];
             d_w_enb = 1'b1; 
             #10;           
@@ -299,32 +298,40 @@ module r_type_add_tb(
         #5;
         for (i_inst = 0; i_inst < inst_numb; i_inst = i_inst + 1) begin
             display_results();
+            $display("x1=%h", REGFILE_uut.registers[1]);
             #10;
         end
         
         // Verify results
         $display("Verifying results...");
-        if (REGFILE_uut.registers[5] == 32'h00000001) begin
+        if (REGFILE_uut.registers[5] == 32'h00000004) begin
             $display("x5 (registers[5]) = %h, matches expected", REGFILE_uut.registers[5]);
         end else begin
-            $display("x5 (registers[5]) = %h, expected 00000001", REGFILE_uut.registers[5]);
+            $display("x5 (registers[5]) = %h, expected 00000004", REGFILE_uut.registers[5]);
         end
-        if (REGFILE_uut.registers[6] == 32'h00000002) begin
+        if (REGFILE_uut.registers[6] == 32'h00000003) begin
             $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
         end else begin
-            $display("x6 (registers[6]) = %h, expected 00000002", REGFILE_uut.registers[6]);
+            $display("x6 (registers[6]) = %h, expected 00000003", REGFILE_uut.registers[6]);
         end
-        if (REGFILE_uut.registers[20] == 32'h00000003) begin
-            $display("x20 (registers[20]) = %h, matches expected", REGFILE_uut.registers[20]);
+        if (REGFILE_uut.registers[7] == 32'h00000008) begin // this test should not pass, as this instruction is never reached
+            $display("x7 (registers[7]) = %h, matches expected", REGFILE_uut.registers[7]);
         end else begin
-            $display("x20 (registers[20]) = %h, expected 00000003", REGFILE_uut.registers[20]);
+            $display("x7 (registers[7]) = %h, expected 00000008", REGFILE_uut.registers[7]);
         end
-        debug_addr = 10'hC;
+        debug_addr = 10'hC; 
         #1;
-        if (debug_data == 32'h00000003) begin // mem[0xC] (word index 0x3)
+        if (debug_data == 32'h00000003) begin 
             $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
             $display("mem[0xC] = %h, expected 00000003", debug_data);
+        end
+        debug_addr = 10'hA; 
+        #1;
+        if (debug_data == 32'h00000004) begin
+            $display("mem[0xA] = %h, matches expected", debug_data);
+        end else begin
+            $display("mem[0xA] = %h, expected 00000004", debug_data);
         end
         
         $display("All tests completed");
