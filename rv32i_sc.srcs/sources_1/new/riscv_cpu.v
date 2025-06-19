@@ -75,6 +75,7 @@ module riscv_cpu(
     wire                      mem_write;
     wire                      alu_src;
     wire                      reg_write;
+    wire [1:0]                wrt_back_src;
     
     control CONTROL(
         // .clk(clk),
@@ -90,7 +91,8 @@ module riscv_cpu(
         .alu_ctrl(alu_ctrl),
         .mem_write(mem_write),
         .alu_src(alu_src),
-        .reg_write(reg_write)
+        .reg_write(reg_write),
+        .wrt_back_src(wrt_back_src)
     );
     
     // Register file

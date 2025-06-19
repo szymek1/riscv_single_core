@@ -36,7 +36,8 @@ module control(
     output reg  [3:0]                alu_ctrl,
     output reg                       mem_write,
     output reg                       alu_src,
-    output reg                       reg_write
+    output reg                       reg_write,
+    output reg  [1:0]                wrt_back_src
     );
     
     /*
@@ -48,15 +49,16 @@ module control(
     reg is_jump;
     always @(posedge rst) begin // posedge clk or posedge rst
         if (rst) begin
-            mem_read  <= 1'b0;
-            mem_2_reg <= 1'b0;
-            reg_write <= 1'b0;
-            is_branch <= 1'b0;
-            is_jump   <= 1'b0;
-            imm_src   <= 3'b111; // do nothing
-            mem_write <= 1'b0;
-            alu_src   <= 1'b0;
-            alu_op    <= 2'b11; // Default ALU op
+            mem_read     <= 1'b0;
+            mem_2_reg    <= 1'b0;
+            reg_write    <= 1'b0;
+            is_branch    <= 1'b0;
+            is_jump      <= 1'b0;
+            imm_src      <= 3'b111; // do nothing
+            mem_write    <= 1'b0;
+            alu_src      <= 1'b0;
+            alu_op       <= 2'b11; // Default ALU op
+            wrt_back_src <= `NONE;
         end 
         /*
         else begin
@@ -102,78 +104,84 @@ module control(
             
             // R-Type (add, sub, and, or)
             `R_TYPE_OP: begin
-                is_branch = 1'b0;
-                is_jump   = 1'b0;
-                imm_src   = 3'b111; // do nothing
-                mem_read  = 1'b0;
-                mem_2_reg = 1'b0;
-                mem_write = 1'b0;
-                alu_src   = 1'b0;
-                reg_write = 1'b1; 
-                alu_op    = `R_TYPE_ALU_OP;
+                is_branch    = 1'b0;
+                is_jump      = 1'b0;
+                imm_src      = 3'b111; // do nothing
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b0;
+                alu_src      = 1'b0;
+                reg_write    = 1'b1; 
+                wrt_back_src = `ALU_RESULTS;
+                alu_op       = `R_TYPE_ALU_OP;
             end
             
             // I-Type (lw)
             `LD_TYPE_OP: begin
-                is_branch = 1'b0;
-                is_jump   = 1'b0;
-                imm_src   = 3'b000;
-                mem_read  = 1'b1;
-                mem_2_reg = 1'b1;
-                mem_write = 1'b0;
-                alu_src   = 1'b1;
-                reg_write = 1'b1; 
-                alu_op    = `LD_SW_TYPE_ALU_OP;  
+                is_branch    = 1'b0;
+                is_jump      = 1'b0;
+                imm_src      = 3'b000;
+                mem_read     = 1'b1;
+                mem_2_reg    = 1'b1;
+                mem_write    = 1'b0;
+                alu_src      = 1'b1;
+                reg_write    = 1'b1; 
+                wrt_back_src = `MEMORY_READ;
+                alu_op       = `LD_SW_TYPE_ALU_OP;  
             end
             
             // S-Type (sd)
             `SD_TYPE_OP: begin
-                is_branch = 1'b0;
-                is_jump   = 1'b0;
-                imm_src   = 3'b001;
-                mem_read  = 1'b0;
-                mem_2_reg = 1'b0;
-                mem_write = 1'b1;
-                alu_src   = 1'b1;
-                reg_write = 1'b0; 
-                alu_op    = `LD_SW_TYPE_ALU_OP;
+                is_branch    = 1'b0;
+                is_jump      = 1'b0;
+                imm_src      = 3'b001;
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b1;
+                alu_src      = 1'b1;
+                reg_write    = 1'b0; 
+                wrt_back_src = `NONE;
+                alu_op       = `LD_SW_TYPE_ALU_OP;
             end
             
             // B-Type (beq)
             `BEQ_TYPE_OP: begin
-                is_branch = 1'b1;
-                is_jump   = 1'b0;
-                imm_src   = 3'b010;
-                mem_read  = 1'b0;
-                mem_2_reg = 1'b0;
-                mem_write = 1'b0;
-                alu_src   = 1'b0;
-                reg_write = 1'b0; 
-                alu_op    = `BEQ_TYPE_ALU_OP;
+                is_branch    = 1'b1;
+                is_jump      = 1'b0;
+                imm_src      = 3'b010;
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b0;
+                alu_src      = 1'b0;
+                reg_write    = 1'b0; 
+                wrt_back_src = `NONE;
+                alu_op       = `BEQ_TYPE_ALU_OP;
             end
             
             // J-Type (jal)
             `J_TYPE_OP: begin
-                is_branch = 1'b0;
-                is_jump   = 1'b1;
-                imm_src   = 3'b011;
-                mem_read  = 1'b0;
-                mem_2_reg = 1'b0;
-                mem_write = 1'b0;
-                alu_src   = 1'bx;
-                reg_write = 1'b1; 
-                alu_op    = `J_TYPE_ALU_OP;
+                is_branch    = 1'b0;
+                is_jump      = 1'b1;
+                imm_src      = 3'b011;
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b0;
+                alu_src      = 1'bx;
+                reg_write    = 1'b1; 
+                wrt_back_src = `PC_PLUS_4;
+                alu_op       = `J_TYPE_ALU_OP;
             end
             
             default: begin
-                is_branch = 1'b0;
-                is_jump   = 1'b0;
-                imm_src   = 3'b111; // do nothing
-                mem_read  = 1'b0;
-                mem_2_reg = 1'b0;
-                mem_write = 1'b0;
-                alu_src   = 1'b0;
-                reg_write = 1'b0;
+                is_branch    = 1'b0;
+                is_jump      = 1'b0;
+                imm_src      = 3'b111; // do nothing
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b0;
+                alu_src      = 1'b0;
+                reg_write    = 1'b0;
+                wrt_back_src = `NONE;
             end
         endcase
     end
