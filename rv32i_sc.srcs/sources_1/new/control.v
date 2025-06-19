@@ -116,6 +116,20 @@ module control(
                 alu_op       = `R_TYPE_ALU_OP;
             end
             
+            // I-Type ALU (addi)
+            `I_TYPE_ALU_OP: begin
+                is_branch    = 1'b0;
+                is_jump      = 1'b0;
+                imm_src      = 3'b000; 
+                mem_read     = 1'b0;
+                mem_2_reg    = 1'b0;
+                mem_write    = 1'b0;
+                alu_src      = 1'b1;
+                reg_write    = 1'b1; 
+                wrt_back_src = `ALU_RESULTS;
+                alu_op       = `ALU_I_TYPE_OP;
+            end
+            
             // I-Type (lw)
             `LD_TYPE_OP: begin
                 is_branch    = 1'b0;
@@ -190,13 +204,12 @@ module control(
     always @(*) begin
         case(alu_op)
             
-            `R_TYPE_ALU_OP: begin
+            `R_TYPE_ALU_OP, `ALU_I_TYPE_OP: begin
                 case (func3)
                     `F3_ADD_SUB: begin
-                        case (func7)
-                            `F7_ADD_AND_OR: alu_ctrl = `ADD;
-                            `F7_SUB       : alu_ctrl = `SUBTRACT;
-                            default       : alu_ctrl = `NOP; // rest for now
+                        case (opcode) // Select the right ALU operation: add and addi belong to different types
+                            `R_TYPE_OP    : alu_ctrl = (func7 == `F7_SUB) ? `SUBTRACT : `ADD; // R-Type
+                            `I_TYPE_ALU_OP: alu_ctrl = `ADD;                                  // I-Type ALU
                         endcase
                     end
                     
