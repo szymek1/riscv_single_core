@@ -25,7 +25,7 @@
 module sign_extend(
     input  wire [24:0]            src, // span [24:0] for covering with the same hardware: I-Type, S-Type and U-Type instructions with immediate fields
                                        // occupying different parts of an instruction
-    input  wire [1:0]             imm_src,
+    input  wire [2:0]             imm_src,
     output reg  [`DATA_WIDTH-1:0] imm_signed
     );
     
