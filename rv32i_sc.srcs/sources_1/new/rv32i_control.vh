@@ -21,9 +21,9 @@
 `define R_TYPE_ALU_OP      2'b10 // R Type instruction  
 `define ALU_I_TYPE_OP      2'b10 // I Type ALU instruction  
 `define LD_SW_TYPE_ALU_OP  2'b00 // I and S Type instruction
-`define J_TYPE_ALU_OP      2'b00 // J Type instruction
+`define J_TYPE_ALU_OP      2'b11 // J Type instruction
 `define BEQ_TYPE_ALU_OP    2'b01 // B Type instruction
-`define U_TYPE_ALU_OP      2'b01 // B Type instruction
+`define U_TYPE_ALU_OP      2'b11 // B Type instruction
 
 // ALU Control
 `define ADD                4'b0010

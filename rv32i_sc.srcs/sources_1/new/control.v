@@ -211,7 +211,7 @@ module control(
                     second_u_type_add_src = 1'b0; // auipc
                 end
                 wrt_back_src           = `U_TYPE_SEC_SRC;
-                alu_op                 = `J_TYPE_ALU_OP;
+                alu_op                 = `U_TYPE_ALU_OP;
             end
             
             default: begin
@@ -254,6 +254,8 @@ module control(
             `BEQ_TYPE_ALU_OP  : alu_ctrl = `SUBTRACT;
             
             `J_TYPE_ALU_OP    : alu_ctrl = `NOP;
+            
+            `U_TYPE_ALU_OP    : alu_ctrl = `NOP;
              
             default           : alu_ctrl = `NOP;
         endcase
