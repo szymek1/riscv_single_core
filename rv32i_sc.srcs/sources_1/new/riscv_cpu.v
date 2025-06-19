@@ -77,6 +77,8 @@ module riscv_cpu(
     wire                      alu_src;
     wire                      reg_write;
     wire [1:0]                wrt_back_src;
+    wire                      second_u_type_add_src;
+    reg  [`DATA_WIDTH-1:0]    u_type_output;
     
     control CONTROL(
         // .clk(clk),
@@ -93,7 +95,8 @@ module riscv_cpu(
         .mem_write(mem_write),
         .alu_src(alu_src),
         .reg_write(reg_write),
-        .wrt_back_src(wrt_back_src)
+        .wrt_back_src(wrt_back_src),
+        .second_u_type_add_src(second_u_type_add_src)
     );
     
     // Register file
@@ -119,9 +122,21 @@ module riscv_cpu(
     reg [`DATA_WIDTH-1:0] wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
-            `MEMORY_READ: wrt_back_data = data_bram_output;
-            `ALU_RESULTS: wrt_back_data = alu_results;
-            `PC_PLUS_4:   wrt_back_data = pc_plus_4;
+            `MEMORY_READ   : wrt_back_data = data_bram_output;
+            `ALU_RESULTS   : wrt_back_data = alu_results;
+            `PC_PLUS_4     : wrt_back_data = pc_plus_4;
+            `U_TYPE_SEC_SRC: wrt_back_data = u_type_output;
+        endcase
+    end
+    
+    // Block dedicated U-Type instruction handling.
+    // Regfile will be updated with a value either:
+    // lui  : immediate 20 bits shited left by 12
+    // auipc: immediate 20 bits shited left by 12 + current pc
+    always @(*) begin
+        case (second_u_type_add_src)
+            1'b1: u_type_output = immediate;          // lui
+            1'b0: u_type_output = pc_out + immediate; // auipc
         endcase
     end
     
