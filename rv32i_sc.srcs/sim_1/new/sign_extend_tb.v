@@ -93,6 +93,12 @@ module sign_extend_tb(
         #10;
         if (imm_signed !== -32'h100) $display("Error: I-Type (-0x100) expected -0x100, got 0x%h", imm_signed);
         
+        // Test Cas 7: U-Type
+        #10;
+        instruction = 32'b00000000001000000000000100110111; // lui x2, 512
+        imm_src     = 3'b100;
+        #10;
+        if (imm_signed !== 32'h200000) $display("Error: U-Type (0x200) expected 200000, got 0x%h", imm_signed);
 
         #10;
         $display("Sign extend testbench completed.");
