@@ -152,15 +152,15 @@ module control(
                 alu_op    = `BEQ_TYPE_ALU_OP;
             end
             
-            // J-Type (beq)
+            // J-Type (jal)
             `J_TYPE_OP: begin
                 is_branch = 1'b0;
                 is_jump   = 1'b1;
-                imm_src   = 3'b010;
+                imm_src   = 3'b011;
                 mem_read  = 1'b0;
                 mem_2_reg = 1'b0;
                 mem_write = 1'b0;
-                alu_src   = 1'b1;
+                alu_src   = 1'bx;
                 reg_write = 1'b1; 
                 alu_op    = `J_TYPE_ALU_OP;
             end
@@ -199,11 +199,13 @@ module control(
                 endcase
             end
             
-            `LD_SW_TYPE_ALU_OP, `J_TYPE_ALU_OP : alu_ctrl = `ADD;
+            `LD_SW_TYPE_ALU_OP: alu_ctrl = `ADD;
            
-            `BEQ_TYPE_ALU_OP                   : alu_ctrl = `SUBTRACT;
+            `BEQ_TYPE_ALU_OP  : alu_ctrl = `SUBTRACT;
+            
+            `J_TYPE_ALU_OP    : alu_ctrl = `NOP;
              
-            default                            : alu_ctrl = `NOP;
+            default           : alu_ctrl = `NOP;
         endcase
     end
     
