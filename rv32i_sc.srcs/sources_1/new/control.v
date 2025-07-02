@@ -242,6 +242,7 @@ module control(
                         endcase
                     end
                     
+                    `F3_ALU_XOR  : alu_ctrl = `ALU_XOR;
                     `F3_ALU_SLTIU: alu_ctrl = `ALU_SLTIU_CMP;
                     `F3_ALU_SLTI : alu_ctrl = `ALU_SLTI_CMP;
                     `F3_ALU_AND  : alu_ctrl = `ALU_AND;
