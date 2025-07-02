@@ -30,6 +30,7 @@
 `define SUBTRACT           4'b0110
 `define ALU_AND            4'b0000
 `define ALU_OR             4'b0001
+`define ALU_SLTI_CMP       4'b0101
 `define NOP                4'b1111
 
 // Write back options
@@ -42,6 +43,7 @@
 `define F3_ADD_SUB         3'b000
 `define F3_ALU_AND         3'b111
 `define F3_ALU_OR          3'b110
+`define F3_ALU_SLTI        3'b010
 
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
