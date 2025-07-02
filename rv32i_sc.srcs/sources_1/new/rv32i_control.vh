@@ -31,6 +31,7 @@
 `define ALU_AND            4'b0000
 `define ALU_OR             4'b0001
 `define ALU_SLTI_CMP       4'b0101
+`define ALU_SLTIU_CMP      4'b0111
 `define NOP                4'b1111
 
 // Write back options
@@ -44,6 +45,7 @@
 `define F3_ALU_AND         3'b111
 `define F3_ALU_OR          3'b110
 `define F3_ALU_SLTI        3'b010
+`define F3_ALU_SLTIU       3'b011
 
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
