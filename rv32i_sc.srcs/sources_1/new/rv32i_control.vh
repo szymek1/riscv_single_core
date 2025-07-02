@@ -30,6 +30,7 @@
 `define SUBTRACT           4'b0110
 `define ALU_AND            4'b0000
 `define ALU_OR             4'b0001
+`define ALU_LT_CMP         4'b0101
 `define NOP                4'b1111
 
 // Write back options

@@ -242,10 +242,11 @@ module control(
                         endcase
                     end
                     
-                    `F3_ALU_AND: alu_ctrl = `ALU_AND;
-                    `F3_ALU_OR : alu_ctrl = `ALU_OR;
+                    `F3_ALU_SLTI: alu_ctrl = `ALU_LT_CMP;
+                    `F3_ALU_AND : alu_ctrl = `ALU_AND;
+                    `F3_ALU_OR  : alu_ctrl = `ALU_OR;
                     
-                    default    : alu_ctrl = `NOP; // all the rest for now
+                    default     : alu_ctrl = `NOP; // all the rest for now
                 endcase
             end
             
