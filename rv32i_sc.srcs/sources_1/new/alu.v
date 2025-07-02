@@ -39,8 +39,8 @@ module alu(
             `SUBTRACT     : results = src1 - src2_internal;
             `ALU_AND      : results = src1 & src2_internal;
             `ALU_OR       : results = src1 | src2_internal;
-            `ALU_SLTI_CMP : results = {31'b0, $signed(src1) < $signed(src2)};
-            `ALU_SLTIU_CMP: results = {31'b0, src1 < src2};
+            `ALU_SLTI_CMP : results = {31'b0, $signed(src1) < $signed(src2_internal)};
+            `ALU_SLTIU_CMP: results = {31'b0, src1 < src2_internal};
             default       : results = 32'h0;
          endcase
     end
