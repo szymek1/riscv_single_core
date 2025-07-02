@@ -35,12 +35,12 @@ module alu(
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     always @(*) begin
          case (alu_ctrl)            
-            `ADD       : results = src1 + src2_internal;
-            `SUBTRACT  : results = src1 - src2_internal;
-            `ALU_AND   : results = src1 & src2_internal;
-            `ALU_OR    : results = src1 | src2_internal;
-            `ALU_LT_CMP: results = {31'b0, $signed(src1) < $signed(src2)};
-            default    : results = 32'h0;
+            `ADD         : results = src1 + src2_internal;
+            `SUBTRACT    : results = src1 - src2_internal;
+            `ALU_AND     : results = src1 & src2_internal;
+            `ALU_OR      : results = src1 | src2_internal;
+            `ALU_SLTI_CMP: results = {31'b0, $signed(src1) < $signed(src2)};
+            default      : results = 32'h0;
          endcase
     end
     
