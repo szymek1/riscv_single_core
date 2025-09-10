@@ -78,3 +78,9 @@ xvlog.*
 *.bin
 *.coe
 *.hex
+
+# this project exclusive directories
+bin/
+log/
+simulation/
+proj/
