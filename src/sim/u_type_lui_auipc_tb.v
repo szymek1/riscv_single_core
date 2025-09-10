@@ -18,8 +18,8 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`include "rv32i_params.vh"
-`include "rv32i_control.vh"
+`include "../include/rv32i_params.vh"
+`include "../include/rv32i_control.vh"
 
 
 module u_type_lui_auipc_tb(

@@ -18,8 +18,8 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`include "rv32i_params.vh"
-`include "rv32i_control.vh"
+`include "../include/rv32i_params.vh"
+`include "../include/rv32i_control.vh"
 
 
 module i_type_slti_tb(

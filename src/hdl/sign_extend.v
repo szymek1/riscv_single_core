@@ -19,7 +19,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`include "rv32i_params.vh"
+`include "../include/rv32i_params.vh"
 
 
 module sign_extend(
