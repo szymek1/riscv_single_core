@@ -8,13 +8,15 @@
 # are included within a particular testbench/testbenches to accelerate the 
 # compilation time (no more compiling all the sources for a single test)
 # and exclude from compilations irrelevant designs.
-# run: $ python3 dep_analyzer.py --lang HDL --tbs "module1_tb,module2_tb" --hdl_dir ../src/hdl/ --sim_dir ../src/sim
+# run: $ python3 dep_analyzer.py --lang HDL --tbs "module1_tb module2_tb" --hdl_dir ../src/hdl/ --sim_dir ../src/sim
+# TODO: group testbenches and their corresponding sources so sources don't get
+#       compiled multiple times, when they belong to only a specific testbench
 # License: GNU GPL
 # -----------------------------------------------------------------------
 import re
 import sys
 import argparse
-from pathlib import Path
+from pathlib import Path, PurePath
 from collections import defaultdict
 from typing import Tuple, List
 
@@ -66,17 +68,17 @@ def collect_deps(graph: dict, tbs: List[str], visited=None) -> set:
     return visited
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     parser = argparse.ArgumentParser()
     
     parser.add_argument("--lang", type=str, choices=["verilog", "vhdl", "sv"], help="HDL: verilog/vhdl/sv")
-    parser.add_argument("--tbs", type=str, help='Comma-separated testbench names, e.g., "top_tb,other_tb"')
-    parser.add_argument("--hdl_dir", type=str, help="Path to src/hdl")
-    parser.add_argument("--sim_dir", type=str, help="Path to /src/sim")
+    parser.add_argument("--tbs", type=str, help='Space-separated testbench names, e.g., "top_tb other_tb"')
+    parser.add_argument("--hdl_dir", type=str, help="Path to src/hdl/")
+    parser.add_argument("--sim_dir", type=str, help="Path to src/sim/")
 
     args = parser.parse_args()
     
-    tbs = [t.lower() for t in args.tbs.split(',')]
+    tbs = [t.lower() for t in args.tbs.split(' ')]
     ext = 'v' if args.lang == 'verilog' else 'sv' if args.lang == 'sv' else 'vhdl'  # map language to extension
     
     graph, mod_to_file = build_dep_graph(args.hdl_dir, args.sim_dir, args.lang, ext)

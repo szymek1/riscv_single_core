@@ -12,7 +12,8 @@
 
 # Arguments: language hdl_dir sim_dir wave_dir [tb1 tb2 ...]
 set language    [lindex $argv 0]
-set hdl_dir     [file normalize [lindex $argv 1]]
+# set hdl_dir     [file normalize [lindex $argv 1]]
+set compile_src [lindex $argv 1]
 set sim_src_dir [file normalize [lindex $argv 2]]
 set wave_dir    [file normalize [lindex $argv 3]]
 set tb_names    [lrange $argv 4 end]
@@ -32,7 +33,8 @@ if {$language eq "verilog"} {
 file mkdir $wave_dir
 
 # Find design and testbench source files
-set design_files    [glob -nocomplain "$hdl_dir/*.$lang"]
+# set design_files    [glob -nocomplain "$hdl_dir/*.$lang"]
+set design_files    [split $compile_src " "]
 set all_tb_files    [glob -nocomplain "$sim_src_dir/*.$lang"]
 
 # Filter testbenches
@@ -60,6 +62,7 @@ if {[llength $tb_files] == 0} {
 foreach tb_file $tb_files {
     set tb_mod [file rootname [file tail $tb_file]]
     puts "\n--- Simulating: $tb_mod ---"
+    puts "Design files to compile: $design_files"
 
     # Per-testbench output directory
     set tb_dir "$wave_dir/$tb_mod"
@@ -68,15 +71,35 @@ foreach tb_file $tb_files {
     cd $tb_dir
 
     # Compile
-    foreach file [concat $design_files $tb_file] {
-        puts "Compiling $file"
+    # foreach file [concat $design_files $tb_file] {
+    #    puts "Compiling $file"
+    #    if {$language eq "verilog"} {
+    #        exec xvlog $file -log "xvlog.log"
+    #    } elseif {$language eq "vhdl"} {
+    #        exec xvhdl $file -log "xvhdl.log"
+    #    } elseif {$language eq "systemverilog"} {
+    #        exec xvlog -sv $file -log "xvlog.log"
+    #    }
+    # }
+
+    foreach src_file $design_files { 
+        puts "Compiling source $src_file"
         if {$language eq "verilog"} {
-            exec xvlog $file -log "xvlog.log"
+            exec xvlog $src_file -log "xvlog.log"
         } elseif {$language eq "vhdl"} {
-            exec xvhdl $file -log "xvhdl.log"
+            exec xvhdl $src_file -log "xvhdl.log"
         } elseif {$language eq "systemverilog"} {
-            exec xvlog -sv $file -log "xvlog.log"
+            exec xvlog -sv $src_file -log "xvlog.log"
         }
+    }
+
+    puts "Compiling testbench $tb_file"
+    if {$language eq "verilog"} {
+        exec xvlog $tb_file -log "xvlog.log"
+    } elseif {$language eq "vhdl"} {
+        exec xvhdl $tb_file -log "xvhdl.log"
+    } elseif {$language eq "systemverilog"} {
+        exec xvlog -sv $tb_file -log "xvlog.log"
     }
 
     # Elaborate

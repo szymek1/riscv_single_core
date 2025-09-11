@@ -38,8 +38,11 @@ BITSTREAM_DIR   := $(BINARIES_DIR)/bit
 
 # TCL scripts
 BUILD_TCL       := $(SCRIPTS_DIR)/build.tcl
-SIMULATE_TCL  := $(SCRIPTS_DIR)/simulate.tcl
+SIMULATE_TCL    := $(SCRIPTS_DIR)/simulate.tcl
 PROGRAM_TCL     := $(SCRIPTS_DIR)/program_board.tcl
+
+# Python scripts
+DEP_ANALYZER    := $(ROOT_DIR)/dep_analyzer.py
 
 # Project's details
 project_name    := rv32i_sc
@@ -72,8 +75,9 @@ sim_all: conf
 # Run selected testbenches: example $ make sim_sel TB="tb1 tb2 tb3" USE "...", no need for file extension
 sim_sel: conf
 	@echo "Simulating specific testbenches: $(TB)..."
-	@cd $(WAVE_DIR) && $(VIVADO_CMD) -source $(SIMULATE_TCL) \
-		-tclargs $(language) $(HDL_DIR) $(SIM_SRC_DIR) $(WAVE_DIR) $(TB) \
+	@COMPILE_SRCS="$$(python3 $(DEP_ANALYZER) --lang $(language) --tbs "$${TB}" --hdl_dir $(HDL_DIR) --sim_dir $(SIM_SRC_DIR))" && \
+	cd $(WAVE_DIR) && $(VIVADO_CMD) -source $(SIMULATE_TCL) \
+		-tclargs $(language) "$${COMPILE_SRCS}" $(SIM_SRC_DIR) $(WAVE_DIR) $(TB) \
 		> $(LOG_DIR)/simulation_selected.log 2>&1
 	@rm -rf *.backup.* vivado.jou
 	@echo "Simulations completed for $(project_name): $(TB). Logs and waveforms stored in correspnding directories in $(LOG_DIR) and $(WAVE_DIR)"
