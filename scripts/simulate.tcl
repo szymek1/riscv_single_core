@@ -6,13 +6,15 @@
 # This TCL script aims to automate running multiple tesbenches. Each tesbench
 # creates its own directory inside simulation/waveforms inside which logs and
 # results are saved.
+# TODO: the script should accept testbench+dedicated compile sources
+#       and compile them once for testbench unless they repeat (still some 
+#       logic could cache them tho)
 # License: GNU GPL
 # -----------------------------------------------------------------------
 
 
 # Arguments: language hdl_dir sim_dir wave_dir [tb1 tb2 ...]
 set language    [lindex $argv 0]
-# set hdl_dir     [file normalize [lindex $argv 1]]
 set compile_src [lindex $argv 1]
 set sim_src_dir [file normalize [lindex $argv 2]]
 set wave_dir    [file normalize [lindex $argv 3]]
@@ -33,9 +35,16 @@ if {$language eq "verilog"} {
 file mkdir $wave_dir
 
 # Find design and testbench source files
-# set design_files    [glob -nocomplain "$hdl_dir/*.$lang"]
-set design_files    [split $compile_src " "]
-set all_tb_files    [glob -nocomplain "$sim_src_dir/*.$lang"]
+# Determine design files: directory (sim_all) or file list (sim_sel)
+if {[string first " " $compile_src] == -1} {
+    # no spaces => treat as hdl_dir (sim_all)
+    set hdl_dir      [file normalize $compile_src]
+    set design_files [glob -nocomplain "$hdl_dir/*.$lang"]
+    set all_tb_files [glob -nocomplain "$sim_src_dir/*.$lang"]
+} else {
+    # spaces => treat as file list (sim_sel)
+    set design_files [split $compile_src " "]
+}
 
 # Filter testbenches
 set tb_files {}
@@ -71,17 +80,6 @@ foreach tb_file $tb_files {
     cd $tb_dir
 
     # Compile
-    # foreach file [concat $design_files $tb_file] {
-    #    puts "Compiling $file"
-    #    if {$language eq "verilog"} {
-    #        exec xvlog $file -log "xvlog.log"
-    #    } elseif {$language eq "vhdl"} {
-    #        exec xvhdl $file -log "xvhdl.log"
-    #    } elseif {$language eq "systemverilog"} {
-    #        exec xvlog -sv $file -log "xvlog.log"
-    #    }
-    # }
-
     foreach src_file $design_files { 
         puts "Compiling source $src_file"
         if {$language eq "verilog"} {
