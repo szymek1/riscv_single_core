@@ -257,9 +257,9 @@ module r_type_and_or_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("and_or_instructions_test_data.hex", init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "r_type/and_or_instructions_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("and_or_instructions_test.new.hex", init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "r_type/and_or_instructions_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 

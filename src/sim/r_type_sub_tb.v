@@ -257,9 +257,9 @@ module r_type_sub_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("sub_instruction_test_data.hex", init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "r_type/sub_instruction_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
-        $readmemh("sub_instruction_test.new.hex", init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "r_type/sub_instruction_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 

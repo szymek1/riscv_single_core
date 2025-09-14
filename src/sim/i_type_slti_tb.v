@@ -273,10 +273,10 @@ module i_type_slti_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("slti_instruction_test_data.hex", init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "i_type/slti_instruction_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
         // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
-        $readmemh("slti_instruction_test.new.hex", init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "i_type/slti_instruction_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 

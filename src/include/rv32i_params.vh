@@ -11,4 +11,8 @@
 `define PC_STEP           32'h4          // PC increment for sequential fetch
 `define I_BRAM_DEPTH      1024           // Instruction BRAM depth
 
+// Testbench
+// relative paths for hex files
+`define RISCV_PROGRAMS    "../../../data/"
+
 `endif

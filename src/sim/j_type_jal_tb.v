@@ -256,10 +256,10 @@ module j_type_jal_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh("jal_instruction_test_data.hex", init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "j_type/jal_instruction_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
         // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
-        $readmemh("jal_instruction_test.new.hex", init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "j_type/jal_instruction_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
