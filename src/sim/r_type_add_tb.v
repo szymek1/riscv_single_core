@@ -134,6 +134,7 @@ module r_type_add_tb(
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
     
+    wire [`INSTR_WIDTH-1:0]    alu_results;
     reg [`DATA_WIDTH-1:0] wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
@@ -167,7 +168,7 @@ module r_type_add_tb(
         .imm_signed(immediate)
     );
     
-    wire [`INSTR_WIDTH-1:0]    alu_results;
+    
     alu ALU_uut(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module

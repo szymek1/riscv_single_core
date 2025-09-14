@@ -131,6 +131,7 @@ module self_dep_add_hazard_trigger_tb(
     // reg                     wrt_enbl; // Replaced in the cpu by reg_wire from control module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
    
+    wire [`INSTR_WIDTH-1:0]    alu_results;
     register_file REGFILE_uut(
         .clk(clk),
         .rst(rst),
@@ -160,7 +161,7 @@ module self_dep_add_hazard_trigger_tb(
         .imm_signed(immediate)
     );
     
-    wire [`INSTR_WIDTH-1:0]    alu_results;
+    
     alu ALU_uut(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module
