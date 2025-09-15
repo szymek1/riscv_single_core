@@ -129,7 +129,17 @@ module control(
                 mem_2_reg             = 1'b0;
                 mem_write             = 1'b0;
                 alu_src               = 1'b1;
-                reg_write             = 1'b1; 
+                 
+                // Invalidation of register write operation
+                if (func3 == `F3_SLL) begin
+                    reg_write = (func7 == `F7_SLL_SLR) ? 1'b1 : 1'b0;
+                end else if (func3 == `F3_SRL_SRA) begin
+                    reg_write = (func7 == `F7_SLL_SLR 
+                               | func7 == `F7_SRA)     ? 1'b1 : 1'b0;
+                end else begin
+                    reg_write         = 1'b1;
+                end
+
                 second_u_type_add_src = 1'bx;
                 wrt_back_src          = `ALU_RESULTS;
                 alu_op                = `ALU_I_TYPE_OP;
@@ -247,6 +257,14 @@ module control(
                     `F3_ALU_SLTI : alu_ctrl = `ALU_SLTI_CMP;
                     `F3_ALU_AND  : alu_ctrl = `ALU_AND;
                     `F3_ALU_OR   : alu_ctrl = `ALU_OR;
+                    `F3_SLL      : alu_ctrl = `ALU_SLL; // add
+                    `F3_SRL_SRA  : begin
+                        if (func7 == `F7_SLL_SLR) begin
+                            alu_ctrl = `ALU_SLR;
+                        end else if (func7 == `F7_SRA) begin
+                            alu_ctrl = `ALU_SRA;
+                        end
+                    end
                     
                     default     : alu_ctrl = `NOP; // all the rest for now
                 endcase
