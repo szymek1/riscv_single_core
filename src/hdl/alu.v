@@ -33,6 +33,7 @@ module alu(
     );
     
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
+    wire [4:0]              shamt         = src2_internal[4:0];
     always @(*) begin
          case (alu_ctrl)            
             `ADD          : results = src1 + src2_internal;
@@ -42,6 +43,9 @@ module alu(
             `ALU_XOR      : results = src1 ^ src2_internal;
             `ALU_SLTI_CMP : results = {31'b0, $signed(src1) < $signed(src2_internal)};
             `ALU_SLTIU_CMP: results = {31'b0, src1 < src2_internal};
+            `ALU_SLL      : results = src1 << shamt;
+            `ALU_SLR      : results = src1 >> shamt;
+            `ALU_SRA      : results = $signed(src1) >>> shamt;
             default       : results = 32'h0;
          endcase
     end
