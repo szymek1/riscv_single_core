@@ -34,6 +34,9 @@
 `define ALU_SLTI_CMP       4'b0101
 `define ALU_SLTIU_CMP      4'b0111
 `define NOP                4'b1111
+`define ALU_SLL            4'b0100
+`define ALU_SRL            4'b0110
+`define ALU_SRA            4'b1001
 
 // Write back options
 `define MEMORY_READ        2'b01
