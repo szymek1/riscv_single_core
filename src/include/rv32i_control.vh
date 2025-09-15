@@ -48,6 +48,8 @@
 `define F3_ALU_SLTI        3'b010
 `define F3_ALU_SLTIU       3'b011
 `define F3_ALU_XOR         3'b100
+`define F3_SLL             3'b001
+`define F3_SRL_SRA         3'b101
 
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
@@ -56,5 +58,7 @@
 // Func7 field
 `define F7_ADD_AND_OR      7'b0000000
 `define F7_SUB             7'b0100000
+`define F7_SLL_SLR         7'b0000000
+`define F7_SRA             7'b0100000
 
 `endif
