@@ -29,6 +29,7 @@ module control(
     input  wire [`FUNC3_WIDTH-1:0]   func3,
     input  wire [`FUNC7_WIDTH-1:0]   func7,
     input  wire                      alu_zero,              // input from ALU indicating whether beq/bne is taken 
+    input  wire                      alu_last_bit,          // input from ALU indicating that results LSB equals to 1 
     output wire                      branch,                // if high then branch/jump
     output reg  [2:0]                imm_src,               // defines if immediate bits occupy [31:20] or are separated
     output reg                       mem_read,
@@ -288,6 +289,7 @@ module control(
         case (func3)
             `F3_BEQ: branch_taken = is_branch & alu_zero;
             `F3_BNE: branch_taken = is_branch & ~alu_zero;
+            `F3_BLT: branch_taken = is_branch & alu_last_bit;
             default: branch_taken = 1'b0; // all the rest for now
         endcase
     end
