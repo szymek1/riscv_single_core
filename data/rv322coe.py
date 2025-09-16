@@ -1,3 +1,12 @@
+# -----------------------------------------------------------------------
+# Author: Szymon Bogus
+# Date:   I don't remeber
+#
+# Description:
+# Script used to assembly and then translate into HEX RISC-V assembly 
+# programs.
+# License: GNU GPL
+# -----------------------------------------------------------------------
 import subprocess
 import argparse
 from pathlib import Path
