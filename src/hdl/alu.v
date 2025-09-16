@@ -30,10 +30,15 @@ module alu(
     input  wire [`INSTR_WIDTH-1:0] sign_ext, // signe_extend module input (selected if alu_src is high) 
     output reg  [`INSTR_WIDTH-1:0] results,  
     output wire                    zero      // Comparison results (for branch evaluation)
+    // Debug outputs
+    // output wire [4:0]              shamt
     );
     
     wire [`INSTR_WIDTH-1:0] src2_internal = alu_src ? sign_ext : src2;
     wire [4:0]              shamt         = src2_internal[4:0];
+
+    // For debug purposes
+    // assign shamt = src2_internal[4:0];
     always @(*) begin
          case (alu_ctrl)            
             `ADD          : results = src1 + src2_internal;
