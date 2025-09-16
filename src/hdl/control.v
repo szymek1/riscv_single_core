@@ -132,9 +132,9 @@ module control(
                  
                 // Invalidation of register write operation
                 if (func3 == `F3_SLL) begin
-                    reg_write = (func7 == `F7_SLL_SLR) ? 1'b1 : 1'b0;
+                    reg_write = (func7 == `F7_SLL_SRL) ? 1'b1 : 1'b0;
                 end else if (func3 == `F3_SRL_SRA) begin
-                    reg_write = (func7 == `F7_SLL_SLR 
+                    reg_write = (func7 == `F7_SLL_SRL 
                                | func7 == `F7_SRA)     ? 1'b1 : 1'b0;
                 end else begin
                     reg_write         = 1'b1;
@@ -259,8 +259,8 @@ module control(
                     `F3_ALU_OR   : alu_ctrl = `ALU_OR;
                     `F3_SLL      : alu_ctrl = `ALU_SLL; // add
                     `F3_SRL_SRA  : begin
-                        if (func7 == `F7_SLL_SLR) begin
-                            alu_ctrl = `ALU_SLR;
+                        if (func7 == `F7_SLL_SRL) begin
+                            alu_ctrl = `ALU_SRL;
                         end else if (func7 == `F7_SRA) begin
                             alu_ctrl = `ALU_SRA;
                         end

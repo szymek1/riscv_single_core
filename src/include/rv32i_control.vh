@@ -61,7 +61,7 @@
 // Func7 field
 `define F7_ADD_AND_OR      7'b0000000
 `define F7_SUB             7'b0100000
-`define F7_SLL_SLR         7'b0000000
+`define F7_SLL_SRL         7'b0000000
 `define F7_SRA             7'b0100000
 
 `endif

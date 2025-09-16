@@ -44,7 +44,7 @@ module alu(
             `ALU_SLTI_CMP : results = {31'b0, $signed(src1) < $signed(src2_internal)};
             `ALU_SLTIU_CMP: results = {31'b0, src1 < src2_internal};
             `ALU_SLL      : results = src1 << shamt;
-            `ALU_SLR      : results = src1 >> shamt;
+            `ALU_SRL      : results = src1 >> shamt;
             `ALU_SRA      : results = $signed(src1) >>> shamt;
             default       : results = 32'h0;
          endcase
