@@ -23,13 +23,14 @@
 
 
 module alu(
-    input  wire [3:0]              alu_ctrl, // 2-bit long alu opcode provided by the main control module
-    input  wire                    alu_src,  // 1-bit indicating if the second source comes from the regfile or sign_extend module
-    input  wire [`INSTR_WIDTH-1:0] src1,     // 1st source (from regfile)
-    input  wire [`INSTR_WIDTH-1:0] src2,     // 2nd source (from regfile)
-    input  wire [`INSTR_WIDTH-1:0] sign_ext, // signe_extend module input (selected if alu_src is high) 
+    input  wire [3:0]              alu_ctrl,    // 2-bit long alu opcode provided by the main control module
+    input  wire                    alu_src,     // 1-bit indicating if the second source comes from the regfile or sign_extend module
+    input  wire [`INSTR_WIDTH-1:0] src1,        // 1st source (from regfile)
+    input  wire [`INSTR_WIDTH-1:0] src2,        // 2nd source (from regfile)
+    input  wire [`INSTR_WIDTH-1:0] sign_ext,    // signe_extend module input (selected if alu_src is high) 
     output reg  [`INSTR_WIDTH-1:0] results,  
-    output wire                    zero      // Comparison results (for branch evaluation)
+    output wire                    zero         // comparison results (for branch evaluation)
+    output wire                    res_last_bit // set to 1, if the LSB of the result is 1
     // Debug outputs
     // output wire [4:0]              shamt
     );
@@ -55,6 +56,7 @@ module alu(
          endcase
     end
     
-    assign zero = (results == 32'h0) ? 1'b1 : 1'b0; // set high if zero
+    assign zero         = (results == 32'h0) ? 1'b1 : 1'b0; // set high if zero
+    assign res_last_bit = results[0];
     
 endmodule
