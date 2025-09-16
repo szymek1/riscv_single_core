@@ -9,14 +9,14 @@ _start:
     lw x6, 4(x10)           # x6 = mem[0x0004] = 0x00000002
     lw x7, 8(x10)           # x7 = mem[0x0008] = 0xFFFFFFD6
 
-    sll x8, x5, x6          # x8 = 0x000000A8
-    slli x9, x5, 2          # x9 = 0x000000A8
+    sll x8, x5, x6          # x8 = 0x000000A8 | op= 011 0011    
+    slli x9, x5, 2          # x9 = 0x000000A8 | op= 001 0011
 
-    srl x10, x5, x6         # x10 = 0x0000000A
-    srli x11, x5, 2         # x11 = 0x0000000A
-    
-    sra x12, x9, x6         # x12 = 0xFFFFFFF5
-    srai x13, x9, 2         # x13 = 0xFFFFFFF5
+    srl x10, x5, x6         # x10 = 0x0000000A| op= 011 0011
+    srli x11, x5, 2         # x11 = 0x0000000A| op= 001 0011
+
+    sra x12, x7, x6         # x12 = 0xFFFFFFF5| op= 011 0011
+    srai x13, x7, 2         # x13 = 0xFFFFFFF5| op= 001 0011
 
     j loop
 

@@ -257,7 +257,7 @@ module control(
                     `F3_ALU_SLTI : alu_ctrl = `ALU_SLTI_CMP;
                     `F3_ALU_AND  : alu_ctrl = `ALU_AND;
                     `F3_ALU_OR   : alu_ctrl = `ALU_OR;
-                    `F3_SLL      : alu_ctrl = `ALU_SLL; // add
+                    `F3_SLL      : alu_ctrl = `ALU_SLL;
                     `F3_SRL_SRA  : begin
                         if (func7 == `F7_SLL_SRL) begin
                             alu_ctrl = `ALU_SRL;

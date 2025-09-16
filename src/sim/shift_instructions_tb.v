@@ -186,7 +186,7 @@ module shift_instructions_tb(
         .imm_signed(immediate)
     );
     
-    
+    // wire [4:0] shamt;
     alu ALU_uut(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module
@@ -194,7 +194,9 @@ module shift_instructions_tb(
         .src2(rs2),           // provided by regfile
         .sign_ext(immediate), // provided by sign_extend
         .results(alu_results),
-        .zero(alu_zero)               
+        .zero(alu_zero)
+        // Debug output
+        // .shamt(shamt)             
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====
@@ -225,7 +227,7 @@ module shift_instructions_tb(
     
     task display_results;
         begin
-            $display("Time=%0t | pc=%h |\n instr=%h | op=%b | r_reg=%b |\n rs1_addr=%h | rs2_addr=%h |\n rs1=%h | rs2=%h |\n d_bram_out=%h",
+            $display("Time=%0t | pc=%h |\n instr=%h | op=%b | r_reg=%b |\n rs1_addr=%h | rs2_addr=%h |\n rs1=%h | rs2=%h",
                      $time,
                      pc_out,
                      instruction,
@@ -234,8 +236,7 @@ module shift_instructions_tb(
                      rs1_addr,
                      rs2_addr,
                      rs1,
-                     rs2,
-                     data_bram_output);
+                     rs2);
         end
     endtask
     
