@@ -273,7 +273,14 @@ module control(
             
             `LD_SW_TYPE_ALU_OP: alu_ctrl = `ADD;
            
-            `BEQ_TYPE_ALU_OP  : alu_ctrl = `SUBTRACT;
+            // `BEQ_TYPE_ALU_OP  : alu_ctrl = `SUBTRACT;
+            `BEQ_TYPE_ALU_OP  : begin
+                case (func3)
+                    `F3_BEQ, `F3_BNE  : alu_ctrl = `SUBTRACT;
+                    `F3_BLT, `F3_BGE  : alu_ctrl = `ALU_SLTI_CMP;
+                    `F3_BLTU, `F3_BGEU: alu_ctrl = `ALU_SLTIU_CMP;
+                endcase
+            end
             
             `J_TYPE_ALU_OP    : alu_ctrl = `NOP;
             
@@ -287,10 +294,13 @@ module control(
     reg branch_taken;
     always @(*) begin
         case (func3)
-            `F3_BEQ: branch_taken = is_branch & alu_zero;
-            `F3_BNE: branch_taken = is_branch & ~alu_zero;
-            `F3_BLT: branch_taken = is_branch & alu_last_bit;
-            default: branch_taken = 1'b0; // all the rest for now
+            `F3_BEQ : branch_taken = is_branch & alu_zero;
+            `F3_BNE : branch_taken = is_branch & ~alu_zero;
+            `F3_BLT : branch_taken = is_branch & alu_last_bit;
+            `F3_BLTU: branch_taken = is_branch & alu_last_bit;
+            `F3_BGE : branch_taken = is_branch & ~alu_last_bit;
+            `F3_BGEU: branch_taken = is_branch & ~alu_last_bit;
+            default : branch_taken = 1'b0; // all the rest for now
         endcase
     end
     
