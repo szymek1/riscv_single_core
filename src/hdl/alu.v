@@ -29,7 +29,7 @@ module alu(
     input  wire [`INSTR_WIDTH-1:0] src2,        // 2nd source (from regfile)
     input  wire [`INSTR_WIDTH-1:0] sign_ext,    // signe_extend module input (selected if alu_src is high) 
     output reg  [`INSTR_WIDTH-1:0] results,  
-    output wire                    zero         // comparison results (for branch evaluation)
+    output wire                    zero,        // comparison results (for branch evaluation)
     output wire                    res_last_bit // set to 1, if the LSB of the result is 1
     // Debug outputs
     // output wire [4:0]              shamt
