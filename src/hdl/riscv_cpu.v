@@ -59,6 +59,7 @@ module riscv_cpu(
     // =====   Fetch stage   =====
     // =====   Decode stage   =====
     wire                      alu_zero;
+    wire                      alu_last_bit;
     wire [`OPCODE_WIDTH-1:0]  opcode;
     assign opcode =           instruction[6:0];
     
@@ -87,6 +88,7 @@ module riscv_cpu(
         .func3(func3),
         .func7(func7),
         .alu_zero(alu_zero),
+        .alu_last_bit(alu_last_bit),
         .branch(branch),
         .imm_src(imm_src),
         .mem_read(mem_read),
@@ -172,7 +174,8 @@ module riscv_cpu(
         .src2(rs2),           // provided by regfile
         .sign_ext(immediate), // provided by sign_extend
         .results(alu_results),
-        .zero(alu_zero)               
+        .zero(alu_zero),
+        .res_last_bit(alu_last_bit)               
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====
