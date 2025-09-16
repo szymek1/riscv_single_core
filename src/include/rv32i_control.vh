@@ -57,6 +57,7 @@
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
 `define F3_BNE             3'b001
+`define F3_BLT             3'b100   
 
 // Func7 field
 `define F7_ADD_AND_OR      7'b0000000
