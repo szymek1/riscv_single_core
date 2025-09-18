@@ -39,8 +39,8 @@ module control(
     output reg                       alu_src,
     output reg                       reg_write,
     output reg  [1:0]                wrt_back_src,
-    output reg                       second_u_type_add_src // decide what to add to immediate:
-                                                           // 1'b1: lui; 1'b0: auipc
+    output reg  [1:0]                second_add_src        // decide what to add to immediate:
+                                                           // 2'b00: lui; 2'b01: auipc; 2'b10: rs1 + imm (for jalr)
     );
     
     /*
@@ -61,7 +61,7 @@ module control(
             mem_write             <= 1'b0;
             alu_src               <= 1'b0;
             alu_op                <= 2'b11; // Default ALU op
-            second_u_type_add_src <= 1'bx;
+            second_add_src        <= `SEC_AS_NONE;
             wrt_back_src          <= 2'bxx;
         end 
         /*
@@ -116,7 +116,7 @@ module control(
                 mem_write             = 1'b0;
                 alu_src               = 1'b0;
                 reg_write             = 1'b1; 
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = `ALU_RESULTS;
                 alu_op                = `R_TYPE_ALU_OP;
             end
@@ -141,7 +141,7 @@ module control(
                     reg_write         = 1'b1;
                 end
 
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = `ALU_RESULTS;
                 alu_op                = `ALU_I_TYPE_OP;
             end
@@ -156,7 +156,7 @@ module control(
                 mem_write             = 1'b0;
                 alu_src               = 1'b1;
                 reg_write             = 1'b1; 
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = `MEMORY_READ;
                 alu_op                = `LD_SW_TYPE_ALU_OP;  
             end
@@ -171,7 +171,7 @@ module control(
                 mem_write             = 1'b1;
                 alu_src               = 1'b1;
                 reg_write             = 1'b0; 
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = 2'bxx;
                 alu_op                = `LD_SW_TYPE_ALU_OP;
             end
@@ -186,24 +186,34 @@ module control(
                 mem_write             = 1'b0;
                 alu_src               = 1'b0;
                 reg_write             = 1'b0; 
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = 2'bxx;
                 alu_op                = `BEQ_TYPE_ALU_OP;
             end
             
-            // J-Type (jal)
-            `J_TYPE_OP: begin
+            // J-Type (jal, jalr)
+            `J_TYPE_OP, `J_TYPE_JALR_OP: begin
                 is_branch             = 1'b0;
                 is_jump               = 1'b1;
-                imm_src               = 3'b011;
                 mem_read              = 1'b0;
                 mem_2_reg             = 1'b0;
                 mem_write             = 1'b0;
-                alu_src               = 1'bx;
+                if (opcode[3] == 1'b1) begin
+                    // jal
+                    alu_src               = 1'b0;
+                    second_add_src        = `SEC_AS_AUIPC;
+                    imm_src               = 3'b011;
+                    alu_op                = `J_TYPE_ALU_OP;
+                end else begin
+                    // jalr
+                    alu_src               = 1'b1;
+                    second_add_src        = `SEC_AS_JALR;
+                    imm_src               = 3'b000;
+                    alu_op                = `J_TYPE_ALU_OP;
+                end
+                
                 reg_write             = 1'b1; 
-                second_u_type_add_src = 1'bx;
                 wrt_back_src           = `PC_PLUS_4;
-                alu_op                 = `J_TYPE_ALU_OP;
             end
             
             // U-Type (lui, auipc)
@@ -217,9 +227,9 @@ module control(
                 alu_src               = 1'b1;
                 reg_write             = 1'b1;
                 if (opcode[5] == 1'b1) begin
-                    second_u_type_add_src = 1'b1; // lui
+                    second_add_src        = `SEC_AS_LUI;   // lui
                 end else begin
-                    second_u_type_add_src = 1'b0; // auipc
+                    second_add_src        = `SEC_AS_AUIPC; // auipc
                 end
                 wrt_back_src           = `U_TYPE_SEC_SRC;
                 alu_op                 = `U_TYPE_ALU_OP;
@@ -234,7 +244,7 @@ module control(
                 mem_write             = 1'b0;
                 alu_src               = 1'b0;
                 reg_write             = 1'b0;
-                second_u_type_add_src = 1'bx;
+                second_add_src        = `SEC_AS_NONE;
                 wrt_back_src          = 2'bxx;
             end
         endcase
