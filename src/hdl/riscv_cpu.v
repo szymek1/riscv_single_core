@@ -29,9 +29,9 @@ module riscv_cpu(
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
-    wire [`DATA_WIDTH-1:0]  pc_plus_4; // used for returning from a jump
-    wire                    branch;    // provided by control module- branch decoder
-    wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
+    wire [`DATA_WIDTH-1:0]  pc_plus_4;       // used for returning from a jump
+    wire                    branch;          // provided by control module- branch decoder
+    wire [`INSTR_WIDTH-1:0] immediate;       // provided by sign_extend module
     reg  [`INSTR_WIDTH-1:0] pc_plus_sec_src; // provided by sequentail block, which 
                                              // decodes second_add_src from control module
 
@@ -140,10 +140,10 @@ module riscv_cpu(
     // jalr : sign-extended 12-bit imm12 to the register rs1
     always @(*) begin
         case (second_add_src)
-            `SEC_AS_LUI  : pc_plus_sec_src = immediate;          // lui
-            `SEC_AS_AUIPC: pc_plus_sec_src = pc_out + immediate; // auipc
-            `SEC_AS_JALR : pc_plus_sec_src = pc_out + rs1;       // jalr
-            `SEC_AS_NONE : pc_plus_sec_src = 32'b0;              // do nothing
+            `SEC_AS_LUI  : pc_plus_sec_src = immediate;                           // lui
+            `SEC_AS_AUIPC: pc_plus_sec_src = pc_out + immediate;                  // auipc
+            `SEC_AS_JALR : pc_plus_sec_src = (rs1 + immediate) & 32'hFFFFFFFE;    // jalr
+            `SEC_AS_NONE : pc_plus_sec_src = 32'b0;                               // do nothing
         endcase
     end
     

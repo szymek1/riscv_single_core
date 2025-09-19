@@ -176,7 +176,7 @@ module control(
                 alu_op                = `LD_SW_TYPE_ALU_OP;
             end
             
-            // B-Type (beq)
+            // B-Type (beq, blt, bltu, bge, bgeu, bnq)
             `BEQ_TYPE_OP: begin
                 is_branch             = 1'b1;
                 is_jump               = 1'b0;
@@ -186,7 +186,7 @@ module control(
                 mem_write             = 1'b0;
                 alu_src               = 1'b0;
                 reg_write             = 1'b0; 
-                second_add_src        = `SEC_AS_NONE;
+                second_add_src        = `SEC_AS_AUIPC;
                 wrt_back_src          = 2'bxx;
                 alu_op                = `BEQ_TYPE_ALU_OP;
             end

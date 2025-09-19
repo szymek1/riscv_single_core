@@ -35,7 +35,8 @@ module pc(
     wire  [`DATA_WIDTH-1:0] pc_target; // branch/jump target
     reg   [`DATA_WIDTH-1:0] pc_next;   // registered next PC value
 
-    assign pc_target = curr_pc + pc_in;
+    // assign pc_target = curr_pc + pc_in;
+    assign pc_target = pc_in;
     assign pc_4      = curr_pc + `PC_STEP;
     always @(posedge clk or posedge rst) begin
         if (rst == 1'b1) begin
