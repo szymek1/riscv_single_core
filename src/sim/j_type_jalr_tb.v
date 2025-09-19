@@ -3,13 +3,13 @@
 // Company: ISAE
 // Engineer: Szymon Bogus
 // 
-// Create Date: 06/18/2025 11:25:51 AM
+// Create Date: 09/19/2025 
 // Design Name: 
-// Module Name: b_type_bne_tb
+// Module Name: j_type_jalr_tb
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: Testbench for B-type bne instruction. It implements cpu module.
+// Description: Testbench for jalr instruction. It implements cpu module.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -22,7 +22,7 @@
 `include "../include/rv32i_control.vh"
 
 
-module b_type_bne_tb(
+module j_type_jalr_tb(
 
     );
     
@@ -228,7 +228,6 @@ module b_type_bne_tb(
         .debug_data(debug_data)
     );
     // =====   Memory stage   =====
-    // =================================
     // =====   Testbench related   =====
     
     task display_results;
@@ -263,7 +262,7 @@ module b_type_bne_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 7; 
+        inst_numb = 6; 
         data_numb = 3; 
         
         // Reset
@@ -282,10 +281,10 @@ module b_type_bne_tb(
         #10;
         
         // Loading data into data BRAM
-        $readmemh({`RISCV_PROGRAMS, "b_type/bne_instruction_test_data.hex"}, init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "j_type/jalr_instruction_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
         // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
-        $readmemh({`RISCV_PROGRAMS, "b_type/bne_instruction_test.new.hex"}, init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "j_type/jalr_instruction_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -325,32 +324,23 @@ module b_type_bne_tb(
         #5;
         for (i_inst = 0; i_inst < inst_numb; i_inst = i_inst + 1) begin
             display_results();
+            $display("x1=%h", REGFILE_uut.registers[1]);
             #10;
         end
         
         // Verify results
         $display("Verifying results...");
-        if (REGFILE_uut.registers[5] == 32'h00000001) begin
+        if (REGFILE_uut.registers[5] == 32'h0000000C) begin
             $display("x5 (registers[5]) = %h, matches expected", REGFILE_uut.registers[5]);
         end else begin
-            $display("x5 (registers[5]) = %h, expected 00000001", REGFILE_uut.registers[5]);
-        end
-        if (REGFILE_uut.registers[6] == 32'h00000003) begin
-            $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
-        end else begin
-            $display("x6 (registers[6]) = %h, expected 00000003", REGFILE_uut.registers[6]);
-        end
-        if (REGFILE_uut.registers[7] == 32'h00000005) begin
-            $display("x7 (registers[7]) = %h, matches expected", REGFILE_uut.registers[7]);
-        end else begin
-            $display("x7 (registers[7]) = %h, expected 00000005", REGFILE_uut.registers[7]);
+            $display("x5 (registers[5]) = %h, expected 0000000C", REGFILE_uut.registers[5]);
         end
         debug_addr = 10'hC; 
         #1;
-        if (debug_data == 32'h00000005) begin
+        if (debug_data == 32'h00000008) begin 
             $display("mem[0xC] = %h, matches expected", debug_data);
         end else begin
-            $display("mem[0xC] = %h, expected 00000007", debug_data);
+            $display("mem[0xC] = %h, expected 00000008", debug_data);
         end
         
         $display("All tests completed");

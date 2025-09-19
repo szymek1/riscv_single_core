@@ -49,18 +49,20 @@ module b_type_beq_tb(
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
-    wire [`DATA_WIDTH-1:0]  pc_plus_4;
+    wire [`DATA_WIDTH-1:0]  pc_plus_4; // used for returning from a jump
     wire                    branch;    // provided by control module- branch decoder
     wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
+    reg  [`INSTR_WIDTH-1:0] pc_plus_sec_src; // provided by sequentail block, which 
+                                             // decodes second_add_src from control module
+
     pc PC_uut(
         .clk(clk),
         .rst(rst),
         .stall(pc_stall),
         .pc_select(branch),
-        .pc_in(immediate),
+        .pc_in(pc_plus_sec_src),
         .pc_out(pc_out),
         .pc_plus_4(pc_plus_4)
-        // .pc_next()
     );
     
     wire [`DATA_WIDTH-1:0] instruction;
@@ -80,6 +82,7 @@ module b_type_beq_tb(
     // =====   Fetch stage   =====
     // =====   Decode stage   =====
     wire                      alu_zero;
+    wire                      alu_last_bit;
     wire [`OPCODE_WIDTH-1:0]  opcode;
     assign opcode =           instruction[6:0];
     
@@ -98,6 +101,7 @@ module b_type_beq_tb(
     wire                      alu_src;
     wire                      reg_write;
     wire [1:0]                wrt_back_src;
+    wire [1:0]                second_add_src;
     
     control CONTROL_uut(
         // .clk(clk),
@@ -106,6 +110,7 @@ module b_type_beq_tb(
         .func3(func3),
         .func7(func7),
         .alu_zero(alu_zero),
+        .alu_last_bit(alu_last_bit),
         .branch(branch),
         .imm_src(imm_src),
         .mem_read(mem_read),
@@ -114,7 +119,8 @@ module b_type_beq_tb(
         .mem_write(mem_write),
         .alu_src(alu_src),
         .reg_write(reg_write),
-        .wrt_back_src(wrt_back_src)
+        .wrt_back_src(wrt_back_src),
+        .second_add_src(second_add_src)
     );
     
     // Register file
@@ -124,7 +130,7 @@ module b_type_beq_tb(
     wire [`REG_ADDR_WIDTH-1:0] rs2_addr;
     assign rs2_addr =          instruction[24:20];
     
-    reg                        rd_enbl;
+    reg                       rd_enbl;
     
     wire [`DATA_WIDTH-1:0]     rs1;
     wire [`DATA_WIDTH-1:0]     rs2;
@@ -134,13 +140,31 @@ module b_type_beq_tb(
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
     
+    // Block dedicated to deciding what should be the output to write back to register file.
+    // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
+    // or saving pc before the jump.
     wire [`INSTR_WIDTH-1:0]    alu_results;
     reg [`DATA_WIDTH-1:0] wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
-            `MEMORY_READ: wrt_back_data = data_bram_output;
-            `ALU_RESULTS: wrt_back_data = alu_results;
-            `PC_PLUS_4:   wrt_back_data = pc_plus_4;
+            `MEMORY_READ   : wrt_back_data = data_bram_output;
+            `ALU_RESULTS   : wrt_back_data = alu_results;
+            `PC_PLUS_4     : wrt_back_data = pc_plus_4;
+            `U_TYPE_SEC_SRC: wrt_back_data = pc_plus_sec_src;
+        endcase
+    end
+    
+    // Block dedicated U-Type instruction handling.
+    // Regfile will be updated with a value either:
+    // lui  : immediate 20 bits shited left by 12
+    // auipc: immediate 20 bits shited left by 12 + current pc
+    // jalr : sign-extended 12-bit imm12 to the register rs1
+    always @(*) begin
+        case (second_add_src)
+            `SEC_AS_LUI  : pc_plus_sec_src = immediate;          // lui
+            `SEC_AS_AUIPC: pc_plus_sec_src = pc_out + immediate; // auipc
+            `SEC_AS_JALR : pc_plus_sec_src = pc_out + rs1;       // jalr
+            `SEC_AS_NONE : pc_plus_sec_src = 32'b0;              // do nothing
         endcase
     end
     
@@ -176,7 +200,8 @@ module b_type_beq_tb(
         .src2(rs2),           // provided by regfile
         .sign_ext(immediate), // provided by sign_extend
         .results(alu_results),
-        .zero(alu_zero)               
+        .zero(alu_zero),
+        .res_last_bit(alu_last_bit)               
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====

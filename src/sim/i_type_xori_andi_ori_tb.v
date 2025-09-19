@@ -52,12 +52,15 @@ module i_type_xori_andi_ori_tb(
     wire [`DATA_WIDTH-1:0]  pc_plus_4; // used for returning from a jump
     wire                    branch;    // provided by control module- branch decoder
     wire [`INSTR_WIDTH-1:0] immediate; // provided by sign_extend module
+    reg  [`INSTR_WIDTH-1:0] pc_plus_sec_src; // provided by sequentail block, which 
+                                             // decodes second_add_src from control module
+
     pc PC_uut(
         .clk(clk),
         .rst(rst),
         .stall(pc_stall),
         .pc_select(branch),
-        .pc_in(immediate),
+        .pc_in(pc_plus_sec_src),
         .pc_out(pc_out),
         .pc_plus_4(pc_plus_4)
     );
@@ -79,6 +82,7 @@ module i_type_xori_andi_ori_tb(
     // =====   Fetch stage   =====
     // =====   Decode stage   =====
     wire                      alu_zero;
+    wire                      alu_last_bit;
     wire [`OPCODE_WIDTH-1:0]  opcode;
     assign opcode =           instruction[6:0];
     
@@ -97,8 +101,7 @@ module i_type_xori_andi_ori_tb(
     wire                      alu_src;
     wire                      reg_write;
     wire [1:0]                wrt_back_src;
-    wire                      second_u_type_add_src;
-    reg  [`DATA_WIDTH-1:0]    u_type_output;
+    wire [1:0]                second_add_src;
     
     control CONTROL_uut(
         // .clk(clk),
@@ -107,6 +110,7 @@ module i_type_xori_andi_ori_tb(
         .func3(func3),
         .func7(func7),
         .alu_zero(alu_zero),
+        .alu_last_bit(alu_last_bit),
         .branch(branch),
         .imm_src(imm_src),
         .mem_read(mem_read),
@@ -116,7 +120,7 @@ module i_type_xori_andi_ori_tb(
         .alu_src(alu_src),
         .reg_write(reg_write),
         .wrt_back_src(wrt_back_src),
-        .second_u_type_add_src(second_u_type_add_src)
+        .second_add_src(second_add_src)
     );
     
     // Register file
@@ -146,7 +150,7 @@ module i_type_xori_andi_ori_tb(
             `MEMORY_READ   : wrt_back_data = data_bram_output;
             `ALU_RESULTS   : wrt_back_data = alu_results;
             `PC_PLUS_4     : wrt_back_data = pc_plus_4;
-            `U_TYPE_SEC_SRC: wrt_back_data = u_type_output;
+            `U_TYPE_SEC_SRC: wrt_back_data = pc_plus_sec_src;
         endcase
     end
     
@@ -154,10 +158,13 @@ module i_type_xori_andi_ori_tb(
     // Regfile will be updated with a value either:
     // lui  : immediate 20 bits shited left by 12
     // auipc: immediate 20 bits shited left by 12 + current pc
+    // jalr : sign-extended 12-bit imm12 to the register rs1
     always @(*) begin
-        case (second_u_type_add_src)
-            1'b1: u_type_output = immediate;          // lui
-            1'b0: u_type_output = pc_out + immediate; // auipc
+        case (second_add_src)
+            `SEC_AS_LUI  : pc_plus_sec_src = immediate;          // lui
+            `SEC_AS_AUIPC: pc_plus_sec_src = pc_out + immediate; // auipc
+            `SEC_AS_JALR : pc_plus_sec_src = pc_out + rs1;       // jalr
+            `SEC_AS_NONE : pc_plus_sec_src = 32'b0;              // do nothing
         endcase
     end
     
@@ -193,7 +200,8 @@ module i_type_xori_andi_ori_tb(
         .src2(rs2),           // provided by regfile
         .sign_ext(immediate), // provided by sign_extend
         .results(alu_results),
-        .zero(alu_zero)               
+        .zero(alu_zero),
+        .res_last_bit(alu_last_bit)               
     );
     // =====   Execute stage   =====
     // =====   Memory stage   =====

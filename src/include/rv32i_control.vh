@@ -13,6 +13,7 @@
 `define SD_TYPE_OP         7'b0100011
 `define BEQ_TYPE_OP        7'b1100011
 `define J_TYPE_OP          7'b1101111
+`define J_TYPE_JALR_OP     7'b1100111
 `define I_TYPE_ALU_OP      7'b0010011
 `define U_TYPE_LUI_OP      7'b0110111
 `define U_TYPE_AUIPC_OP    7'b0010111 
@@ -53,6 +54,7 @@
 `define F3_ALU_XOR         3'b100
 `define F3_SLL             3'b001
 `define F3_SRL_SRA         3'b101
+`define F3_JALR            3'b000
 
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
@@ -67,5 +69,11 @@
 `define F7_SUB             7'b0100000
 `define F7_SLL_SRL         7'b0000000
 `define F7_SRA             7'b0100000
+
+// Second add source (assigned from control module)
+`define SEC_AS_AUIPC       2'b00
+`define SEC_AS_LUI         2'b01
+`define SEC_AS_JALR        2'b10
+`define SEC_AS_NONE        2'b11
 
 `endif
