@@ -56,6 +56,7 @@
 `define F3_SRL_SRA         3'b101
 `define F3_JALR            3'b000
 `define F3_BYTE            3'b000
+`define F3_HALF_WORD       3'b001
 `define F3_SW              3'b010
 
 // Func3 field- branch decoder
