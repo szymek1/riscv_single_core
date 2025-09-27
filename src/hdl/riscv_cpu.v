@@ -185,13 +185,14 @@ module riscv_cpu(
         .res_last_bit(alu_last_bit)               
     );
 
-    wire [3:0] byte_enb;
+    wire [3:0]             byte_enb;
+    wire [`DATA_WIDTH-1:0] mem_write_data;
     load LOAD_STORE_DECODER(
         .alu_result_addr(alu_results),
         .func3(func3),
-        .reg_read(),
+        .reg_read(rs2),
         .byte_enb(byte_enb),
-        .data()
+        .data(mem_write_data)
     );
 
     // =====   Execute stage   =====
@@ -200,8 +201,8 @@ module riscv_cpu(
         .clk(clk),
         .rst(rst),
         // Write ports inputs
-        .w_addr(alu_results),
-        .w_dat(rs2),
+        .w_addr({alu_result[31:2], 2'b00}),
+        .w_dat(mem_write_data),
         .w_enb(mem_write),
         .byte_enb(byte_enb),
         // Read ports inputs

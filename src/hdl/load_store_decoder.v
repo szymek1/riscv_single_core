@@ -27,11 +27,47 @@ module load_store_decoder (
     input  wire [`DATA_WIDTH-1:0]  alu_result_addr,
     input  wire [`FUNC3_WIDTH-1:0] func3,
     input  wire [`DATA_WIDTH-1:0]  reg_read,
-    output wire [3:0]              byte_enb,
-    output wire [`DATA_WIDTH-1:0]  data
+    output reg  [3:0]              byte_enb,
+    output reg  [`DATA_WIDTH-1:0]  data
 
 );
+    wire [1:0] addr_offset = alu_result_addr[1:0];
 
-    assign byte_enb = 4'b1111;
+    always @(*) begin
+        case (func3)
+            `F3_BYTE: begin
+                case (addr_offset) 
+                    2'b00: begin // 1st byte
+                        byte_enb = 4'b0001;
+                        data     = reg_read & 32'h000000FF;
+                    end
+
+                    2'b01: begin // 2nd byte
+                        byte_enb = 4'b0010;
+                        data     = (reg_read & 32'h000000FF) << 8;
+                    end
+
+                    2'b10: begin // 3rd byte
+                        byte_enb = 4'b0100;
+                        data     = (reg_read & 32'h000000FF) << 16;
+                    end
+
+                    2'b11: begin // 4th byte
+                        byte_enb = 4'b1000;
+                        data     = (reg_read & 32'h000000FF) << 24;
+                    end
+
+                    default: byte_enb = 4'b0000;
+                endcase
+            end
+
+            `F3_SW: begin // sw
+                byte_enb = (addr_offset == 2'b00) ? 4'b1111 : 4'b0000;
+                data     = reg_read;
+            end
+
+            default: byte_enb = 4'b0000;
+        endcase
+    end
 
 endmodule
