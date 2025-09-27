@@ -34,18 +34,20 @@ module store_word_tb(
     
     // Instruction BRAM inputs
     // Write port inputs
-    reg  [9:0]             i_w_addr;
-    reg  [`DATA_WIDTH-1:0] i_w_dat;
-    reg                    i_w_enb;
+    reg  [11:0]             i_w_addr;
+    reg  [`DATA_WIDTH-1:0]  i_w_dat;
+    reg                     i_w_enb;
+    reg [3:0]               i_w_byte_enb;
     // Read port inputs
-    reg                    i_r_enb;
+    reg                     i_r_enb;
     // Data BRAM inputs
     // Write port inputs
     // Later after initial loading of the memory the control for write: address, data, enable
     // will be transfered to control module
-    reg  [9:0]             d_w_addr;
-    reg  [`DATA_WIDTH-1:0] d_w_dat;
-    reg                    d_w_enb;
+    reg  [11:0]             d_w_addr;
+    reg  [`DATA_WIDTH-1:0]  d_w_dat;
+    reg                     d_w_enb;
+    reg  [3:0]              d_w_byte_enb;
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
@@ -73,6 +75,7 @@ module store_word_tb(
         .w_addr(i_w_addr),
         .w_dat(i_w_dat),
         .w_enb(i_w_enb),
+        .byte_enb(i_w_byte_enb),
         // Read ports inputs
         .r_addr(pc_out),
         .r_enb(i_r_enb),
@@ -203,11 +206,21 @@ module store_word_tb(
         .zero(alu_zero),
         .res_last_bit(alu_last_bit)               
     );
+
+    wire [3:0] byte_enb;
+    load_store_decoder LOAD_STORE_DECODER_uut(
+        .alu_result_addr(alu_results),
+        .func3(func3),
+        .reg_read(),
+        .byte_enb(byte_enb),
+        .data()
+    );
+
     // =====   Execute stage   =====
     // =====   Memory stage   =====
     reg d_bram_init_done;
     // Debug signals
-    reg  [9:0]  debug_addr;
+    reg  [11:0]  debug_addr;
     wire [31:0] debug_data;
     bram32 D_MEM_uut( // Data BRAM
         .clk(clk),
@@ -215,9 +228,10 @@ module store_word_tb(
         // Write ports inputs
         // this change is required as we load the data intially through
         // the testbench
-        .w_addr(d_bram_init_done ? alu_results : d_w_addr),
-        .w_dat(d_bram_init_done  ? rs2         : d_w_dat),
-        .w_enb(d_bram_init_done  ? mem_write   : d_w_enb),
+        .w_addr(d_bram_init_done   ? alu_results : d_w_addr),
+        .w_dat(d_bram_init_done    ? rs2         : d_w_dat),
+        .w_enb(d_bram_init_done    ? mem_write   : d_w_enb),
+        .byte_enb(d_bram_init_done ? byte_enb    : d_w_byte_enb),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read), 
@@ -269,13 +283,15 @@ module store_word_tb(
         // Reset
         rst              = 1'b1;
         pc_stall         = 1'b1;
-        i_w_addr         = 10'b0;
+        i_w_addr         = 12'b0;
         i_w_dat          = 32'h0;
         i_w_enb          = 1'b0;
+        i_w_byte_enb     = 4'b0000;
         i_r_enb          = 1'b0;
-        d_w_addr         = 10'h0;
+        d_w_addr         = 12'h0;
         d_w_dat          = 32'h0;
         d_w_enb          = 1'b0;
+        d_w_byte_enb     = 4'b0000;
         rd_enbl          = 1'b0;
         wrt_dat          = 32'h0;
         d_bram_init_done = 1'b0;
@@ -297,8 +313,10 @@ module store_word_tb(
             // d_w_addr = i_data;
             d_w_dat = init_mem_data[i_data];
             d_w_enb = 1'b1; 
+            d_w_byte_enb = 4'b1111;
             #10;           
             d_w_enb = 1'b0; 
+            d_w_byte_enb = 4'b1111;
             $display("Initialized address %h with instruction %h", d_w_addr, d_w_dat);
         end
         
@@ -312,8 +330,10 @@ module store_word_tb(
             i_w_addr = i_inst * 4; // 4-byte aligned addresses (0x0, 0x4, 0x8, 0xC)
             i_w_dat = init_mem_instr[i_inst];
             i_w_enb = 1'b1; 
+            i_w_byte_enb = 4'b1111;
             #10;           
             i_w_enb = 1'b0; 
+            i_w_byte_enb = 4'b0000;
             $display("Initialized address %h with instruction %h", i_w_addr, i_w_dat);
         end
         

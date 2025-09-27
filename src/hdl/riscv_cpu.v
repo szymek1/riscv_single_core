@@ -46,6 +46,7 @@ module riscv_cpu(
     );
     
     wire [`DATA_WIDTH-1:0] instruction;
+    wire [3:0]             i_w_byte_enb;
     bram32 I_MEM( // Instruction BRAM
         .clk(clk),
         .rst(rst),
@@ -53,6 +54,7 @@ module riscv_cpu(
         .w_addr(i_w_addr),
         .w_dat(i_w_dat),
         .w_enb(i_w_enb),
+        .byte_enb(i_w_byte_enb),
         // Read ports inputs
         .r_addr(pc_out),
         .r_enb(i_r_enb),
@@ -183,11 +185,12 @@ module riscv_cpu(
         .res_last_bit(alu_last_bit)               
     );
 
+    wire [3:0] byte_enb;
     load LOAD_STORE_DECODER(
         .alu_result_addr(alu_results),
         .func3(func3),
         .reg_read(),
-        .byte_enb(),
+        .byte_enb(byte_enb),
         .data()
     );
 
@@ -200,6 +203,7 @@ module riscv_cpu(
         .w_addr(alu_results),
         .w_dat(rs2),
         .w_enb(mem_write),
+        .byte_enb(byte_enb),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read),
