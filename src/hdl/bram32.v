@@ -35,11 +35,11 @@ module bram32 (
                                                                                 // for 0x1001, write_mask = 0b0010, etc...
     // Read port inputs
     input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] r_addr,
-    input  wire [3:0]                                                    r_enb,
+    input  wire                                                          r_enb,
     // Outputs
     output reg  [`DATA_WIDTH-1:0]                                        r_dat,
     // Debug read port
-    input  wire [9:0]                                                    debug_addr,
+    input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] debug_addr,
     output wire [31:0]                                                   debug_data
 );
 
@@ -62,16 +62,19 @@ module bram32 (
                 if (w_enb[1] == 1'b1) mem[w_addr[11:2]][15:8]  <= w_dat[15:8];
                 if (w_enb[2] == 1'b1) mem[w_addr[11:2]][23:16] <= w_dat[23:16];
                 if (w_enb[3] == 1'b1) mem[w_addr[11:2]][31:24] <= w_dat[31:24];
-            begin
         end
     end
     
     always @(*) begin
         if (!w_enb && !rst && r_enb) begin
-            r_dat = mem[r_addr];
+            r_dat = mem[r_addr[11:2]];
+        end else begin
+            r_dat = 32'b0;
         end
     end
     
-    assign debug_data = mem[debug_addr]; // used only for debugging, like accessing data after store for a validation
+    // used only for debugging, like accessing data after store for a validation
+    // accesses full words
+    assign debug_data = mem[debug_addr[11:2]]; 
     
 endmodule
