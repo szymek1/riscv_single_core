@@ -182,6 +182,15 @@ module riscv_cpu(
         .zero(alu_zero),    
         .res_last_bit(alu_last_bit)               
     );
+
+    load LOAD_STORE_DECODER(
+        .alu_result_addr(alu_results),
+        .func3(func3),
+        .reg_read(),
+        .byte_enb(),
+        .data()
+    );
+
     // =====   Execute stage   =====
     // =====   Memory stage   =====
     bram32 D_MEM( // Data BRAM

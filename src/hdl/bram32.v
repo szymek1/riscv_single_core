@@ -28,11 +28,12 @@ module bram32 (
     // Write port inputs
     input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] w_addr, // bytes alignment
     input  wire [`DATA_WIDTH-1:0]                                        w_dat,
-    input  wire [3:0]                                                    w_enb, // mask indicating which byte from the word to edit:
-                                                                                // Example:
-                                                                                // to write the least significant byte of a word at address 0x1000
-                                                                                // set write_enb = 0b0001
-                                                                                // for 0x1001, write_mask = 0b0010, etc...
+    input  wire                                                          w_enb, 
+    input  wire [3:0]                                                    byte_enb, // mask indicating which byte from the word to edit:
+                                                                                   // Example:
+                                                                                   // to write the least significant byte of a word at address 0x1000
+                                                                                   // set write_enb = 0b0001
+                                                                                   // for 0x1001, write_mask = 0b0010, etc...
     // Read port inputs
     input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] r_addr,
     input  wire                                                          r_enb,
@@ -52,16 +53,16 @@ module bram32 (
                 mem[i] <= 32'h0;
             end
         end
-        if (!rst && !r_enb) begin
-            if (w_enb == 4'b1111) begin
+        if (!rst && !r_enb && w_enb) begin
+            if (byte_enb == 4'b1111) begin
                 // full word write
                 mem[w_addr[11:2]] <= w_dat; 
             end else 
                 // specific byte
-                if (w_enb[0] == 1'b1) mem[w_addr[11:2]][7:0]   <= w_dat[7:0];
-                if (w_enb[1] == 1'b1) mem[w_addr[11:2]][15:8]  <= w_dat[15:8];
-                if (w_enb[2] == 1'b1) mem[w_addr[11:2]][23:16] <= w_dat[23:16];
-                if (w_enb[3] == 1'b1) mem[w_addr[11:2]][31:24] <= w_dat[31:24];
+                if (byte_enb[0] == 1'b1) mem[w_addr[11:2]][7:0]   <= w_dat[7:0];
+                if (byte_enb[1] == 1'b1) mem[w_addr[11:2]][15:8]  <= w_dat[15:8];
+                if (byte_enb[2] == 1'b1) mem[w_addr[11:2]][23:16] <= w_dat[23:16];
+                if (byte_enb[3] == 1'b1) mem[w_addr[11:2]][31:24] <= w_dat[31:24];
         end
     end
     
