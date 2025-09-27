@@ -28,7 +28,11 @@ module bram32 (
     // Write port inputs
     input  wire [9:0]             w_addr, // bytes alignment
     input  wire [`DATA_WIDTH-1:0] w_dat,
-    input  wire                   w_enb,
+    input  wire [3:0]             w_enb, // mask indicating which byte from the word to edit:
+                                         // Example:
+                                         // To write the least significant byte of a word at address 0x1000
+                                         // set write_enb = 0b0001
+                                         // for 0x1001, write_mask = 0b0010, etc...
     // Read port inputs
     input  wire [9:0]             r_addr,
     input  wire                   r_enb,
@@ -48,8 +52,12 @@ module bram32 (
                 mem[i] <= 32'h0;
             end
         end
-        if (!rst && w_enb && !r_enb) begin
-             mem[w_addr] <= w_dat;
+        if (!rst && !r_enb) begin
+            case (w_enb)
+                4'b1111: mem[w_addr] <= w_dat; // full word write
+                
+            endcase
+             
         end
     end
     
