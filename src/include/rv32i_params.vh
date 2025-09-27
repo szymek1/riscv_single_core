@@ -10,6 +10,7 @@
 `define DATA_WIDTH        32             // Data width for registers and memory
 `define PC_STEP           32'h4          // PC increment for sequential fetch
 `define I_BRAM_DEPTH      1024           // Instruction BRAM depth
+`define BYTES_PER_WORD    4              // Each 32-bit word contains 4 bytes
 
 // Testbench
 // relative paths for hex files
