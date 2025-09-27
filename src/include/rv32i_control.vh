@@ -55,6 +55,7 @@
 `define F3_SLL             3'b001
 `define F3_SRL_SRA         3'b101
 `define F3_JALR            3'b000
+`define F3_BYTE            3'b000
 
 // Func3 field- branch decoder
 `define F3_BEQ             3'b000
