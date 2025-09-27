@@ -23,24 +23,24 @@
 
 
 module bram32 (
-    input                         clk,
-    input                         rst,
+    input                                                                clk,
+    input                                                                rst,
     // Write port inputs
-    input  wire [9:0]             w_addr, // bytes alignment
-    input  wire [`DATA_WIDTH-1:0] w_dat,
-    input  wire [3:0]             w_enb, // mask indicating which byte from the word to edit:
-                                         // Example:
-                                         // To write the least significant byte of a word at address 0x1000
-                                         // set write_enb = 0b0001
-                                         // for 0x1001, write_mask = 0b0010, etc...
+    input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] w_addr, // bytes alignment
+    input  wire [`DATA_WIDTH-1:0]                                        w_dat,
+    input  wire [3:0]                                                    w_enb, // mask indicating which byte from the word to edit:
+                                                                                // Example:
+                                                                                // to write the least significant byte of a word at address 0x1000
+                                                                                // set write_enb = 0b0001
+                                                                                // for 0x1001, write_mask = 0b0010, etc...
     // Read port inputs
-    input  wire [9:0]             r_addr,
-    input  wire                   r_enb,
+    input  wire [$clog2(`I_BRAM_DEPTH) + $clog2(`BYTES_PER_WORD) - 1 :0] r_addr,
+    input  wire [3:0]                                                    r_enb,
     // Outputs
-    output reg  [`DATA_WIDTH-1:0] r_dat,
+    output reg  [`DATA_WIDTH-1:0]                                        r_dat,
     // Debug read port
-    input  wire [9:0]  debug_addr,
-    output wire [31:0] debug_data
+    input  wire [9:0]                                                    debug_addr,
+    output wire [31:0]                                                   debug_data
 );
 
     reg [`DATA_WIDTH-1:0] mem [0:`I_BRAM_DEPTH-1];
@@ -53,11 +53,16 @@ module bram32 (
             end
         end
         if (!rst && !r_enb) begin
-            case (w_enb)
-                4'b1111: mem[w_addr] <= w_dat; // full word write
-                
-            endcase
-             
+            if (w_enb == 4'b1111) begin
+                // full word write
+                mem[w_addr[11:2]] <= w_dat; 
+            end else 
+                // specific byte
+                if (w_enb[0] == 1'b1) mem[w_addr[11:2]][7:0]   <= w_dat[7:0];
+                if (w_enb[1] == 1'b1) mem[w_addr[11:2]][15:8]  <= w_dat[15:8];
+                if (w_enb[2] == 1'b1) mem[w_addr[11:2]][23:16] <= w_dat[23:16];
+                if (w_enb[3] == 1'b1) mem[w_addr[11:2]][31:24] <= w_dat[31:24];
+            begin
         end
     end
     
