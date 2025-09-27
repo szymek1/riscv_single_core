@@ -37,24 +37,42 @@ module load_store_decoder (
         case (func3)
             `F3_BYTE: begin
                 case (addr_offset) 
-                    2'b00: begin // 1st byte
+                    2'b00  : begin // 1st byte
                         byte_enb = 4'b0001;
                         data     = reg_read & 32'h000000FF;
                     end
 
-                    2'b01: begin // 2nd byte
+                    2'b01  : begin // 2nd byte
                         byte_enb = 4'b0010;
                         data     = (reg_read & 32'h000000FF) << 8;
                     end
 
-                    2'b10: begin // 3rd byte
+                    2'b10  : begin // 3rd byte
                         byte_enb = 4'b0100;
                         data     = (reg_read & 32'h000000FF) << 16;
                     end
 
-                    2'b11: begin // 4th byte
+                    2'b11  : begin // 4th byte
                         byte_enb = 4'b1000;
                         data     = (reg_read & 32'h000000FF) << 24;
+                    end
+
+                    default: byte_enb = 4'b0000;
+                endcase
+            end
+
+            `F3_HALF_WORD: begin
+                case (addr_offset)
+                    2'b00  : begin
+                        // lower half word
+                        byte_enb = 4'b0011;
+                        data     = (reg_read & 32'h0000FFFF);
+                    end
+
+                    2'b10  : begin
+                        // upper half word
+                        byte_enb = 4'b1100;
+                        data     = (reg_read & 32'h0000FFFF) << 16;
                     end
 
                     default: byte_enb = 4'b0000;
