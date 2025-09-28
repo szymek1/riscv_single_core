@@ -235,7 +235,6 @@ module riscv_cpu(
         .wb_data(mem_wb_data),
         .valid(mem_valid)
     );
-
     // =====   Memory stage   =====
     
 endmodule
