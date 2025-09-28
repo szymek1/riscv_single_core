@@ -3,13 +3,13 @@
 // Company: ISAE
 // Engineer: Szymon Bogus
 // 
-// Create Date: 06/18/2025 11:25:51 AM
+// Create Date: 09/27/2025
 // Design Name: 
-// Module Name: b_type_bne_tb
+// Module Name: s_type_sb_tb
 // Project Name: rv32i_sc
 // Target Devices: Zybo Z7-20
 // Tool Versions: 
-// Description: Testbench for B-type bne instruction. It implements cpu module.
+// Description: Testbench for store byte (sb) instruction. It implements cpu mpdule.
 // 
 // Dependencies: rv32i_params.vh, rv32i_control.vh
 // 
@@ -22,7 +22,7 @@
 `include "../include/rv32i_control.vh"
 
 
-module b_type_bne_tb(
+module s_type_sb_tb(
 
     );
     
@@ -302,29 +302,30 @@ module b_type_bne_tb(
     integer i_inst;
     integer i_data;
     initial begin
-        inst_numb = 7; 
-        data_numb = 3; 
+        inst_numb = 9; 
+        data_numb = 1; 
         
         // Reset
         rst              = 1'b1;
         pc_stall         = 1'b1;
-        i_w_addr         = 10'b0;
+        i_w_addr         = 12'b0;
         i_w_dat          = 32'h0;
         i_w_enb          = 1'b0;
+        i_w_byte_enb     = 4'b0000;
         i_r_enb          = 1'b0;
-        d_w_addr         = 10'h0;
+        d_w_addr         = 12'h0;
         d_w_dat          = 32'h0;
         d_w_enb          = 1'b0;
+        d_w_byte_enb     = 4'b0000;
         rd_enbl          = 1'b0;
         wrt_dat          = 32'h0;
         d_bram_init_done = 1'b0;
         #10;
         
         // Loading data into data BRAM
-        $readmemh({`RISCV_PROGRAMS, "b_type/bne_instruction_test_data.hex"}, init_mem_data);
+        $readmemh({`RISCV_PROGRAMS, "s_type/sb_instruction_test_data.hex"}, init_mem_data);
         // Loading program into instruction BRAM
-        // $readmemh("beq_bne_instructions_test.new.hex", init_mem_instr);
-        $readmemh({`RISCV_PROGRAMS, "b_type/bne_instruction_test.new.hex"}, init_mem_instr);
+        $readmemh({`RISCV_PROGRAMS, "s_type/sb_instruction_test.new.hex"}, init_mem_instr);
         
         // Deassert reset and initialize data BRAM
         rst = 1'b0; 
@@ -367,34 +368,62 @@ module b_type_bne_tb(
         i_r_enb  = 1'b1;
         pc_stall = 1'b0;
         #5;
-        for (i_inst = 0; i_inst < inst_numb; i_inst = i_inst + 1) begin
+        for (i_inst = 0; i_inst < inst_numb + 4; i_inst = i_inst + 1) begin
             display_results();
             #10;
         end
         
         // Verify results
         $display("Verifying results...");
-        if (REGFILE_uut.registers[5] == 32'h00000001) begin
+        if (REGFILE_uut.registers[5] == 32'h000000AB) begin
             $display("x5 (registers[5]) = %h, matches expected", REGFILE_uut.registers[5]);
         end else begin
-            $display("x5 (registers[5]) = %h, expected 00000001", REGFILE_uut.registers[5]);
+            $display("x5 (registers[5]) = %h, expected 000000AB", REGFILE_uut.registers[5]);
         end
-        if (REGFILE_uut.registers[6] == 32'h00000003) begin
+        if (REGFILE_uut.registers[6] == 32'h000000CD) begin
             $display("x6 (registers[6]) = %h, matches expected", REGFILE_uut.registers[6]);
         end else begin
-            $display("x6 (registers[6]) = %h, expected 00000003", REGFILE_uut.registers[6]);
+            $display("x6 (registers[6]) = %h, expected 000000CD", REGFILE_uut.registers[6]);
         end
-        if (REGFILE_uut.registers[7] == 32'h00000005) begin
+        if (REGFILE_uut.registers[7] == 32'h000000EF) begin
             $display("x7 (registers[7]) = %h, matches expected", REGFILE_uut.registers[7]);
         end else begin
-            $display("x7 (registers[7]) = %h, expected 00000005", REGFILE_uut.registers[7]);
+            $display("x7 (registers[7]) = %h, expected 000000CD", REGFILE_uut.registers[7]);
         end
-        debug_addr = 12'hC; 
+        debug_addr = {10'h0, 2'b00}; // 0x0
         #1;
-        if (debug_data == 32'h00000005) begin
-            $display("mem[0xC] = %h, matches expected", debug_data);
+        if (debug_data[7:0] == 8'hAB) begin
+            $display("mem[0x00] = %h, matches expected", debug_data[7:0]);
         end else begin
-            $display("mem[0xC] = %h, expected 00000007", debug_data);
+            $display("mem[0x00] = %h, expected 0xAB", debug_data[7:0]);
+        end
+        debug_addr = {10'h0, 2'b01}; // 0x1
+        #1;
+        if (debug_data[15:8] == 8'hCD) begin
+            $display("mem[0x01] = %h, matches expected", debug_data[15:8]);
+        end else begin
+            $display("mem[0x01] = %h, expected 0xCD", debug_data[15:8]);
+        end
+        debug_addr = {10'h1, 2'b01}; // 0x5
+        #1;
+        if (debug_data[15:8] == 8'hAB) begin
+            $display("mem[0x05] = %h, matches expected", debug_data[15:8]);
+        end else begin
+            $display("mem[0x05] = %h, expected 0xAB", debug_data[15:8]);
+        end
+        debug_addr = {10'h2, 2'b00}; // 0x8
+        #1;
+        if (debug_data[7:0] == 8'hEF) begin
+            $display("mem[0x08] = %h, matches expected", debug_data[7:0]);
+        end else begin
+            $display("mem[0x08] = %h, expected 0xEF", debug_data[7:0]);
+        end
+        debug_addr = {10'h3, 2'b00}; // 0xC
+        #1;
+        if (debug_data == 32'h000000EF) begin
+            $display("mem[0x0C] = %h, matches expected", debug_data);
+        end else begin
+            $display("mem[0x0C] = %h, expected 0x000000EF", debug_data);
         end
         
         $display("All tests completed");

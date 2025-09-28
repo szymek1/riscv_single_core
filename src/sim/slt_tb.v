@@ -34,18 +34,20 @@ module slt_tb(
     
     // Instruction BRAM inputs
     // Write port inputs
-    reg  [9:0]             i_w_addr;
-    reg  [`DATA_WIDTH-1:0] i_w_dat;
-    reg                    i_w_enb;
+    reg  [11:0]             i_w_addr;
+    reg  [`DATA_WIDTH-1:0]  i_w_dat;
+    reg                     i_w_enb;
+    reg [3:0]               i_w_byte_enb;
     // Read port inputs
-    reg                    i_r_enb;
+    reg                     i_r_enb;
     // Data BRAM inputs
     // Write port inputs
     // Later after initial loading of the memory the control for write: address, data, enable
     // will be transfered to control module
-    reg  [9:0]             d_w_addr;
-    reg  [`DATA_WIDTH-1:0] d_w_dat;
-    reg                    d_w_enb;
+    reg  [11:0]             d_w_addr;
+    reg  [`DATA_WIDTH-1:0]  d_w_dat;
+    reg                     d_w_enb;
+    reg  [3:0]              d_w_byte_enb;
     
     // =====   Fetch stage   =====
     wire [`DATA_WIDTH-1:0]  pc_out;
@@ -73,6 +75,7 @@ module slt_tb(
         .w_addr(i_w_addr),
         .w_dat(i_w_dat),
         .w_enb(i_w_enb),
+        .byte_enb(i_w_byte_enb),
         // Read ports inputs
         .r_addr(pc_out),
         .r_enb(i_r_enb),
@@ -139,18 +142,34 @@ module slt_tb(
     assign wrt_addr =          instruction[11:7];
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
+
+    wire [`DATA_WIDTH-1:0] mem_wb_data; // from byte_reader
+    wire                   mem_valid;   // from byte_reader
+    reg                    wb_valid;    // has to be set high after every write back operation
     
     // Block dedicated to deciding what should be the output to write back to register file.
     // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
     // or saving pc before the jump.
     wire [`INSTR_WIDTH-1:0]    alu_results;
-    reg [`DATA_WIDTH-1:0] wrt_back_data;
+    reg  [`DATA_WIDTH-1:0]     wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
-            `MEMORY_READ   : wrt_back_data = data_bram_output;
-            `ALU_RESULTS   : wrt_back_data = alu_results;
-            `PC_PLUS_4     : wrt_back_data = pc_plus_4;
-            `U_TYPE_SEC_SRC: wrt_back_data = pc_plus_sec_src;
+            `MEMORY_READ   : begin
+                wrt_back_data = mem_wb_data;
+                wb_valid      = mem_valid;
+            end
+            `ALU_RESULTS   : begin
+                wrt_back_data = alu_results;
+                wb_valid      = 1'b1;
+            end
+            `PC_PLUS_4     : begin
+                wrt_back_data = pc_plus_4;
+                wb_valid      = 1'b1;
+            end
+            `U_TYPE_SEC_SRC: begin
+                wrt_back_data = pc_plus_sec_src;
+                wb_valid      = 1'b1;
+            end
         endcase
     end
     
@@ -176,7 +195,7 @@ module slt_tb(
         .rs2_addr(rs2_addr),
         .rs1(rs1),
         .rs2(rs2),
-        .write_enable(reg_write),
+        .write_enable(reg_write & wb_valid),
         .write_addr(wrt_addr),
         .write_data(wrt_back_data)                      
     );
@@ -203,11 +222,22 @@ module slt_tb(
         .zero(alu_zero),
         .res_last_bit(alu_last_bit)               
     );
+
+    wire [3:0]             byte_enb;
+    wire [`DATA_WIDTH-1:0] mem_write_data;
+    load_store_decoder LOAD_STORE_DECODER(
+        .alu_result_addr(alu_results),
+        .func3(func3),
+        .reg_read(rs2),
+        .byte_enb(byte_enb),
+        .data(mem_write_data)
+    );
+
     // =====   Execute stage   =====
     // =====   Memory stage   =====
     reg d_bram_init_done;
     // Debug signals
-    reg  [9:0]  debug_addr;
+    reg  [11:0]  debug_addr;
     wire [31:0] debug_data;
     bram32 D_MEM_uut( // Data BRAM
         .clk(clk),
@@ -215,9 +245,10 @@ module slt_tb(
         // Write ports inputs
         // this change is required as we load the data intially through
         // the testbench
-        .w_addr(d_bram_init_done ? alu_results : d_w_addr),
-        .w_dat(d_bram_init_done  ? rs2         : d_w_dat),
-        .w_enb(d_bram_init_done  ? mem_write   : d_w_enb),
+        .w_addr(d_bram_init_done   ? {alu_results[31:2], 2'b00}: d_w_addr),
+        .w_dat(d_bram_init_done    ? mem_write_data            : d_w_dat),
+        .w_enb(d_bram_init_done    ? mem_write                 : d_w_enb),
+        .byte_enb(d_bram_init_done ? byte_enb                  : d_w_byte_enb),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read), 
@@ -226,6 +257,14 @@ module slt_tb(
         // Debug read port
         .debug_addr(debug_addr),
         .debug_data(debug_data)
+    );
+
+    byte_reader BYTE_READER_uut(
+        .mem_data(data_bram_output),
+        .func3(func3),
+        .byte_mask(byte_enb),
+        .wb_data(mem_wb_data),
+        .valid(mem_valid)
     );
     // =====   Memory stage   =====
     // =================================
@@ -306,10 +345,13 @@ module slt_tb(
         $display("Loading data BRAM...");
         for (i_data = 0; i_data < data_numb; i_data = i_data + 1) begin 
             d_w_addr = i_data * 4;
+            // d_w_addr = i_data;
             d_w_dat = init_mem_data[i_data];
             d_w_enb = 1'b1; 
+            d_w_byte_enb = 4'b1111;
             #10;           
             d_w_enb = 1'b0; 
+            d_w_byte_enb = 4'b1111;
             $display("Initialized address %h with instruction %h", d_w_addr, d_w_dat);
         end
         
@@ -323,8 +365,10 @@ module slt_tb(
             i_w_addr = i_inst * 4; // 4-byte aligned addresses (0x0, 0x4, 0x8, 0xC)
             i_w_dat = init_mem_instr[i_inst];
             i_w_enb = 1'b1; 
+            i_w_byte_enb = 4'b1111;
             #10;           
             i_w_enb = 1'b0; 
+            i_w_byte_enb = 4'b0000;
             $display("Initialized address %h with instruction %h", i_w_addr, i_w_dat);
         end
         

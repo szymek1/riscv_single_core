@@ -46,6 +46,7 @@ module riscv_cpu(
     );
     
     wire [`DATA_WIDTH-1:0] instruction;
+    wire [3:0]             i_w_byte_enb;
     bram32 I_MEM( // Instruction BRAM
         .clk(clk),
         .rst(rst),
@@ -53,6 +54,7 @@ module riscv_cpu(
         .w_addr(i_w_addr),
         .w_dat(i_w_dat),
         .w_enb(i_w_enb),
+        .byte_enb(i_w_byte_enb),
         // Read ports inputs
         .r_addr(pc_out),
         .r_enb(i_r_enb),
@@ -119,17 +121,34 @@ module riscv_cpu(
     assign wrt_addr =          instruction[11:7];
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
+
+    wire [`DATA_WIDTH-1:0] mem_wb_data; // from byte_reader
+    wire                   mem_valid;   // from byte_reader
+    reg                    wb_valid;    // has to be set high after every write back operation
     
     // Block dedicated to deciding what should be the output to write back to register file.
     // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
     // or saving pc before the jump.
-    reg [`DATA_WIDTH-1:0] wrt_back_data;
+    wire [`INSTR_WIDTH-1:0]    alu_results;
+    reg  [`DATA_WIDTH-1:0]     wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
-            `MEMORY_READ   : wrt_back_data = data_bram_output;
-            `ALU_RESULTS   : wrt_back_data = alu_results;
-            `PC_PLUS_4     : wrt_back_data = pc_plus_4;
-            `U_TYPE_SEC_SRC: wrt_back_data = pc_plus_sec_src;
+            `MEMORY_READ   : begin
+                wrt_back_data = mem_wb_data;
+                wb_valid      = mem_valid;
+            end
+            `ALU_RESULTS   : begin
+                wrt_back_data = alu_results;
+                wb_valid      = 1'b1;
+            end
+            `PC_PLUS_4     : begin
+                wrt_back_data = pc_plus_4;
+                wb_valid      = 1'b1;
+            end
+            `U_TYPE_SEC_SRC: begin
+                wrt_back_data = pc_plus_sec_src;
+                wb_valid      = 1'b1;
+            end
         endcase
     end
     
@@ -155,7 +174,7 @@ module riscv_cpu(
         .rs2_addr(rs2_addr),
         .rs1(rs1),
         .rs2(rs2),
-        .write_enable(reg_write),
+        .write_enable(reg_write & wb_valid),
         .write_addr(wrt_addr),
         .write_data(wrt_back_data)                      
     );
@@ -171,7 +190,6 @@ module riscv_cpu(
         .imm_signed(immediate)
     );
     
-    wire [`INSTR_WIDTH-1:0]    alu_results;
     alu ALU(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module
@@ -182,20 +200,40 @@ module riscv_cpu(
         .zero(alu_zero),    
         .res_last_bit(alu_last_bit)               
     );
+
+    wire [3:0]             byte_enb;
+    wire [`DATA_WIDTH-1:0] mem_write_data;
+    load LOAD_STORE_DECODER(
+        .alu_result_addr(alu_results),
+        .func3(func3),
+        .reg_read(rs2),
+        .byte_enb(byte_enb),
+        .data(mem_write_data)
+    );
+
     // =====   Execute stage   =====
     // =====   Memory stage   =====
     bram32 D_MEM( // Data BRAM
         .clk(clk),
         .rst(rst),
         // Write ports inputs
-        .w_addr(alu_results),
-        .w_dat(rs2),
+        .w_addr({alu_result[31:2], 2'b00}),
+        .w_dat(mem_write_data),
         .w_enb(mem_write),
+        .byte_enb(byte_enb),
         // Read ports inputs
         .r_addr(alu_results),
         .r_enb(mem_read),
         // Outputs
         .r_dat(data_bram_output)
+    );
+
+    byte_reader BYTE_READER(
+        .mem_data(data_bram_output),
+        .func3(func3),
+        .byte_mask(byte_enb),
+        .wb_data(mem_wb_data),
+        .valid(mem_valid)
     );
     // =====   Memory stage   =====
     
