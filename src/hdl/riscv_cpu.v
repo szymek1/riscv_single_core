@@ -121,6 +121,10 @@ module riscv_cpu(
     assign wrt_addr =          instruction[11:7];
     reg [`DATA_WIDTH-1:0]      wrt_dat; // connect with data memory module
     wire [`DATA_WIDTH-1:0]     data_bram_output;
+
+    wire [`DATA_WIDTH-1:0] mem_wb_data; // from byte_reader
+    wire                   mem_valid;   // from byte_reader
+    reg                    wb_valid;    // has to be set high after every write back operation
     
     // Block dedicated to deciding what should be the output to write back to register file.
     // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
@@ -128,10 +132,22 @@ module riscv_cpu(
     reg [`DATA_WIDTH-1:0] wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
-            `MEMORY_READ   : wrt_back_data = data_bram_output;
-            `ALU_RESULTS   : wrt_back_data = alu_results;
-            `PC_PLUS_4     : wrt_back_data = pc_plus_4;
-            `U_TYPE_SEC_SRC: wrt_back_data = pc_plus_sec_src;
+            `MEMORY_READ   : begin
+                wrt_back_data = mem_wb_data;
+                wb_valid      = mem_valid;
+            end
+            `ALU_RESULTS   : begin
+                wrt_back_data = alu_results;
+                wb_valid      = 1'b1;
+            end
+            `PC_PLUS_4     : begin
+                wrt_back_data = pc_plus_4;
+                wb_valid      = 1'b1;
+            end
+            `U_TYPE_SEC_SRC: begin
+                wrt_back_data = pc_plus_sec_src;
+                wb_valid      = 1'b1;
+            end
         endcase
     end
     
@@ -157,7 +173,7 @@ module riscv_cpu(
         .rs2_addr(rs2_addr),
         .rs1(rs1),
         .rs2(rs2),
-        .write_enable(reg_write),
+        .write_enable(reg_write & wb_valid),
         .write_addr(wrt_addr),
         .write_data(wrt_back_data)                      
     );
@@ -211,6 +227,15 @@ module riscv_cpu(
         // Outputs
         .r_dat(data_bram_output)
     );
+
+    byte_reader BYTE_READER(
+        .mem_data(data_bram_output),
+        .func3(func3),
+        .byte_mask(byte_enb),
+        .wb_data(mem_wb_data),
+        .valid(mem_valid)
+    );
+
     // =====   Memory stage   =====
     
 endmodule
