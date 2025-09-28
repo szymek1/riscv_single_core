@@ -58,6 +58,7 @@
 `define F3_BYTE            3'b000
 `define F3_HALF_WORD       3'b001
 `define F3_SW              3'b010
+`define F3_LW              3'b010
 `define F3_LBU             3'b100
 `define F3_LHU             3'b101
 
