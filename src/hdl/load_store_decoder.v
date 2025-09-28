@@ -35,7 +35,7 @@ module load_store_decoder (
 
     always @(*) begin
         case (func3)
-            `F3_BYTE: begin
+            `F3_BYTE, `F3_LBU    : begin // sb, lb, lbu
                 case (addr_offset) 
                     2'b00  : begin // 1st byte
                         byte_enb = 4'b0001;
@@ -61,7 +61,7 @@ module load_store_decoder (
                 endcase
             end
 
-            `F3_HALF_WORD: begin
+            `F3_HALF_WORD, `F3_LHU: begin // sh, lh, lhu
                 case (addr_offset)
                     2'b00  : begin
                         // lower half word
@@ -75,7 +75,7 @@ module load_store_decoder (
                         data     = (reg_read & 32'h0000FFFF) << 16;
                     end
 
-                    default: byte_enb = 4'b0000;
+                    default       : byte_enb = 4'b0000;
                 endcase
             end
 
