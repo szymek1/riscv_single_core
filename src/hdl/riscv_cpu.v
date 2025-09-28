@@ -129,7 +129,8 @@ module riscv_cpu(
     // Block dedicated to deciding what should be the output to write back to register file.
     // It changes accordingly to a current instruction: reading from data BRAM, register-to-tegister
     // or saving pc before the jump.
-    reg [`DATA_WIDTH-1:0] wrt_back_data;
+    wire [`INSTR_WIDTH-1:0]    alu_results;
+    reg  [`DATA_WIDTH-1:0]     wrt_back_data;
     always @(*) begin
         case (wrt_back_src)
             `MEMORY_READ   : begin
@@ -189,7 +190,6 @@ module riscv_cpu(
         .imm_signed(immediate)
     );
     
-    wire [`INSTR_WIDTH-1:0]    alu_results;
     alu ALU(
         .alu_ctrl(alu_ctrl),  // provided by control module
         .alu_src(alu_src),    // provided by control module

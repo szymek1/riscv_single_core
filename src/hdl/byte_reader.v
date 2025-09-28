@@ -38,11 +38,11 @@ module byte_reader (
     // masking data according to bye mask
     integer i;
     always @(*) begin
-        for (i = 0; i < 4; i++) begin
+        for (i = 0; i < 4; i = i + 1) begin
             if (byte_mask[i] == 1'b1) begin
-                masked_data[(i * 8) + :8] = mem_data[(i * 8) + :8];
+                masked_data[(i*8)+:8] = mem_data[(i*8)+:8];
             end else begin
-                masked_data[(i * 8) + :8] = 8'h0;
+                masked_data[(i*8)+:8] = 8'h0;
             end
         end
     end
@@ -75,8 +75,8 @@ module byte_reader (
     always @(*) begin
         case (func3) 
             `F3_LW                : wb_data = shifted_data; // lw
-            `F3_BYTE, `F3_LBU     : wb_data = sign_extend ? {{24{shifted_data[7]}},shifted_data[7:0]}   : shifted_data; // lb, lbu
-            `F3_HALF_WORD, `F3_LHU: wb_data = sign_extend ? {{16{shifted_data[15]}},shifted_data[15:0]} : shifted_data; // lh, lhu
+            `F3_BYTE, `F3_LBU     : wb_data = sign_ext ? {{24{shifted_data[7]}},shifted_data[7:0]}   : shifted_data; // lb, lbu
+            `F3_HALF_WORD, `F3_LHU: wb_data = sign_ext ? {{16{shifted_data[15]}},shifted_data[15:0]} : shifted_data; // lh, lhu
         endcase
         valid = | byte_mask;
     end
