@@ -22,6 +22,19 @@ Each register is 32-bit.
 ### Memory
 ![Memory high-level layout](docs/graphics/rv32i_mem_scheme.drawio.png)
 
+#### Testting BRAM
+In order to test BRAM with any program its ```.hex``` file must be placed inside ```xsim/``` directory and ```instruction_fetch_bram.v``` modified in the following fashion:
+```verilog
+// Load .hex file into init_mem
+$readmemh("filename.hex", init_mem);
+```
+
+In order to create ```.hex``` or ```.coe``` out of ```.S``` file you can use ```python``` script located in ```data/``` directory.
+Use the pipeline:
+```bash
+python3 rv322coe.py --file path/filename.S
+```
+
 High level memory layout- little endian scheme.
 
 ### Target
